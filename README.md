@@ -1,4 +1,28 @@
-# ChatGPT Integration
+ascended-intelligence-core/
+├── api/
+│   └── app.py
+├── core/
+│   ├── orchestrator.py
+│   ├── governor.py
+├── agents/
+│   ├── defense_agent.py
+│   ├── audit_agent.py
+│   ├── prediction_agent.py
+├── security/
+│   ├── policy_engine.py
+│   ├── auth.py
+├── observability/
+│   ├── logger.py
+│   ├── trace.py
+├── infrastructure/
+│   ├── queue.py
+│   ├── config.py
+├── k8s/
+│   ├── deployment.yaml
+│   ├── service.yaml
+├── requirements.txt
+├── Dockerfile
+└── README.md# ChatGPT Integration
 
 This repository contains the integration of OpenAI's ChatGPT into the Ascended Intelligence Core project.
 
