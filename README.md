@@ -14,6 +14,9 @@ ascended-intelligence-core/
 ├── observability/
 │   ├── logger.py
 │   ├── trace.py
+git add .
+git commit -m "FULL AICI SYSTEM BASE DEPLOY"
+git push origin main
 ├── infrastructure/
 │   ├── queue.py
 │   ├── config.py
