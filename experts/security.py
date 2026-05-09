@@ -1,6 +1,6 @@
-def generate_report(task):
+def security_check(task):
     return {
-        "expert": "report",
-        "message": "Report generated under governed execution.",
+        "expert": "security",
+        "message": "Security check completed under governed execution.",
         "input": task
     }
