@@ -16,6 +16,11 @@ def test_missing_type_defaults_to_report():
     assert result["status"] == "success"
 
 
+def test_buddy_type_routes_to_buddy_respond():
+    result = route_task({"type": "buddy", "query": "hello"})
+    assert result["expert"] == "buddy"
+
+
 def test_unknown_type_falls_through_to_report():
     result = route_task({"type": "unknown_expert"})
     assert result["status"] == "success"
