@@ -196,6 +196,7 @@ The AICI router (`agents/router.py`) supports two task types you can set in the 
 |---|---|---|
 | `"report"` | `experts/report.py` | Generates a structured report |
 | `"security"` | `experts/security.py` | Runs a security check |
+| `"buddy"` | `experts/buddy.py` | Conversational assistant reply |
 
 Change `doc["type"] = "report"` in the sketch to switch modes.
 
