@@ -1,0 +1,30 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+from datetime import datetime
+import hashlib
+
+app = FastAPI(title="TrustOS Core API", version="1.0")
+
+class ArtifactCreate(BaseModel):
+    title: str
+    creator_id: str
+    artifact_type: str
+    content: str
+
+@app.get("/health")
+def health():
+    return {"status": "healthy", "covenant": "truth_codes_the_future"}
+
+@app.post("/artifacts")
+def create_artifact(data: ArtifactCreate):
+    artifact_id = hashlib.sha256(data.content.encode()).hexdigest()
+    return {
+        "status": "created",
+        "artifact": {
+            "id": artifact_id,
+            "title": data.title,
+            "creator_id": data.creator_id,
+            "type": data.artifact_type,
+            "created_at": datetime.utcnow().isoformat()
+        }
+    }

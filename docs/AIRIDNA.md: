@@ -1,0 +1,29 @@
+# AIRI-DNA
+
+Digital Provenance Architecture.
+
+## 12 Fingerprint Dimensions
+
+1. Content Hash
+2. Structure Hash
+3. Semantic Hash
+4. Dependency Hash
+5. Temporal Hash
+6. Provenance Hash
+7. Evidence Hash
+8. Build Hash
+9. Contributor Hash
+10. Publication Hash
+11. Witness Hash
+12. Version Lineage Hash
+
+## Composite
+
+AIRI-DNA = H(D1 || D2 || ... || D12)
+
+## Principles
+
+1. Provenance is not optional
+2. Evidence is not assumed
+3. History is not mutable
+4. Transparency is not absolute

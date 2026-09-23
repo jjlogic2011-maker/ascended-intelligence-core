@@ -1,50 +1,52 @@
-ascended-intelligence-core/
-├── api/
-│   └── app.py
-├── core/
-│   ├── orchestrator.py
-│   ├── governor.py
-├── agents/
-│   ├── defense_agent.py
-│   ├── audit_agent.py
-│   ├── prediction_agent.py
-├── security/
-│   ├── policy_engine.py
-│   ├── auth.py
-├── observability/
-│   ├── logger.py
-│   ├── trace.py
-git add .
-git commit -m "FULL AICI SYSTEM BASE DEPLOY"
-git push origin main
-├── infrastructure/
-│   ├── queue.py
-│   ├── config.py
-├── k8s/
-│   ├── deployment.yaml
-│   ├── service.yaml
-├── requirements.txt
-├── Dockerfile
-└── README.md# ChatGPT Integration
+# Ascended Intelligence Core — TrustOS
 
-This repository contains the integration of OpenAI's ChatGPT into the Ascended Intelligence Core project.
+**The Operating System for Trustworthy Intelligence**
 
-## Installation
+A governance, provenance, and adversarial testing architecture for autonomous AI agents.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/jjlogic2011-maker/ascended-intelligence-core.git
-   cd ascended-intelligence-core
-   ```
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TABS Score](https://img.shields.io/badge/TABS-89%25-gold)](https://github.com/jjlogic2011-maker/ascended-intelligence-core)
 
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+---
 
-## Configuration
+## Overview
 
-Create an `.env` file in the root directory with the following variables:
-````
-OPENAI_API_KEY=your_openai_api_key_here
-````
+TrustOS is a unified governance control plane designed to ensure that agentic AI systems remain:
+
+- **Traceable** — Every action has a cryptographic lineage.
+- **Attributable** — Every contribution has a verifiable owner.
+- **Auditable** — Every decision is recorded and inspectable.
+- **Accountable** — Every outcome has a responsible party.
+
+## The Five Gaps Addressed
+
+| Gap | Solution |
+|-----|----------|
+| Provenance Loss | AIRI-DNA cryptographic fingerprinting |
+| Authority Drift | SHAPE Protocol human approval gates |
+| Memory Erosion | Living Ledger immutable repository |
+| Evidence Vacuum | TABS adversarial evaluation |
+| Accountability Collapse | Wasmer/Tenki verifiable execution receipts |
+
+## Core Components
+
+| Component | Description |
+|-----------|-------------|
+| **TrustOS Core** | API, artifact registry, evidence vault, governance engine |
+| **TABS** | 120+ adversarial tests across 12 domains |
+| **SHAPE Protocol** | Human approval gates and authority control |
+| **Living Ledger** | Immutable artifact repository with versioning and lineage |
+| **AIRI-DNA** | 12-dimensional cryptographic provenance fingerprinting |
+| **Runtime Adapters** | Wasmer, Tenki, and container execution substrates |
+
+## The Governed Action Workflow
+
+
+## Quick Start
+
+```bash
+git clone https://github.com/jjlogic2011-maker/ascended-intelligence-core.git
+cd ascended-intelligence-core
+pip install -r requirements.txt
+uvicorn src.api.main:app --reload
+```

@@ -1,0 +1,25 @@
+# TrustOS Architecture
+
+## The Five Gaps
+
+| Gap | Solution |
+|-----|----------|
+| Provenance Loss | AIRI-DNA |
+| Authority Drift | SHAPE Protocol |
+| Memory Erosion | Living Ledger |
+| Evidence Vacuum | TABS |
+| Accountability Collapse | Verifiable Receipts |
+
+## Core Thesis
+
+Trustworthy agentic execution is achievable when identity, provenance, evidence, authority, execution, verification, and accountability are represented as interoperable machine-verifiable state.
+
+## Current Maturity
+
+| Component | Level |
+|-----------|-------|
+| AIRI-DNA | T2 |
+| TABS | T3 |
+| SHAPE | T2 |
+| Living Ledger | T2 |
+| Full TrustOS | T1 |
