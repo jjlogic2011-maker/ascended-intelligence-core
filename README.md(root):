@@ -1,0 +1,25 @@
+# Ascended Intelligence Core — TrustOS
+
+The Operating System for Trustworthy Intelligence.
+
+A governance, provenance, and adversarial testing architecture for autonomous AI agents.
+
+## The Five Gaps Addressed
+
+| Gap | Solution |
+|-----|----------|
+| Provenance Loss | AIRI-DNA cryptographic fingerprinting |
+| Authority Drift | SHAPE Protocol human approval gates |
+| Memory Erosion | Living Ledger immutable repository |
+| Evidence Vacuum | TABS adversarial evaluation |
+| Accountability Collapse | Verifiable execution receipts |
+
+## Documentation
+
+- [TrustOS Architecture](docs/TRUSTOS_ARCHITECTURE.md)
+- [SHAPE Protocol](docs/SHAPE_PROTOCOL.md)
+- [AIRI-DNA](docs/AIRI_DNA.md)
+
+## License
+
+MIT License © 2026 Ascended Intelligence Archives
