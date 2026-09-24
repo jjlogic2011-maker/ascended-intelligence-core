@@ -1,0 +1,46 @@
+name: baseline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          pip install pytest coverage
+
+      - name: Pytest
+        run: pytest -q
+
+      - name: Coverage
+        run: |
+          coverage run -m pytest -q
+          coverage report
+
+      - name: Import check
+        run: python -c "from api.app import app; print(type(app).__name__)"
+
+      - name: Startup check
+        run: |
+          python -c "
+          from api.app import app
+          c = app.test_client()
+          r = c.get('/health')
+          print('status', r.status_code)
+          print(r.get_data(as_text=True))
+          "
