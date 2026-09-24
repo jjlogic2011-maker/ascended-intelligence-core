@@ -1,28 +1,30 @@
 {
   "schema_version": "0.1",
   "generated_at": "2026-09-24T00:00:00Z",
-  "commit": "NOT_AVAILABLE",
+  "commit": "PENDING — recorded after this file's commit",
   "environment": {
-    "python_version": "NOT_AVAILABLE",
-    "platform": "NOT_AVAILABLE"
+    "python_version": "3.14.2",
+    "platform": "linux",
+    "runner": "GitHub Codespaces"
   },
   "commands": {
     "test": "pytest -q",
     "coverage": "coverage run -m pytest && coverage report",
-    "import": "python -c \"from api.app import app\"",
-    "startup": "python -c \"from api.app import app; c=app.test_client(); print(c.get('/health').status_code)\""
+    "import": "python -c \"from api.app import app; print(type(app).__name__)\"",
+    "startup": "python -c \"from api.app import app; c=app.test_client(); print(c.get('/health').status_code, c.get('/health').get_data(as_text=True))\""
   },
   "results": {
-    "tests_collected": "NOT_AVAILABLE",
-    "tests_passed": "NOT_AVAILABLE",
-    "tests_failed": "NOT_AVAILABLE",
-    "errors": "NOT_AVAILABLE",
-    "coverage_percent": "NOT_AVAILABLE",
-    "import_result": "NOT_AVAILABLE",
-    "startup_result": "NOT_AVAILABLE",
-    "docker_result": "NOT_AVAILABLE"
+    "tests_collected": 45,
+    "tests_passed": 45,
+    "tests_failed": 0,
+    "errors": 0,
+    "coverage_percent": 100,
+    "coverage_statements": 48,
+    "coverage_missed": 0,
+    "import_result": "Flask",
+    "startup_result": "status 200, body: {\"status\":\"healthy\"}",
+    "docker_result": "NOT_AVAILABLE — Docker not executed in this session"
   },
   "discrepancies": [
-    "NOT_AVAILABLE — to be filled after execution"
+    "Codespaces Python is 3.14.2; CI workflow targets 3.11. Reconcile in a future patch."
   ]
-}
