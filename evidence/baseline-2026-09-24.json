@@ -1,0 +1,28 @@
+{
+  "schema_version": "0.1",
+  "generated_at": "2026-09-24T00:00:00Z",
+  "commit": "NOT_AVAILABLE",
+  "environment": {
+    "python_version": "NOT_AVAILABLE",
+    "platform": "NOT_AVAILABLE"
+  },
+  "commands": {
+    "test": "pytest -q",
+    "coverage": "coverage run -m pytest && coverage report",
+    "import": "python -c \"from api.app import app\"",
+    "startup": "python -c \"from api.app import app; c=app.test_client(); print(c.get('/health').status_code)\""
+  },
+  "results": {
+    "tests_collected": "NOT_AVAILABLE",
+    "tests_passed": "NOT_AVAILABLE",
+    "tests_failed": "NOT_AVAILABLE",
+    "errors": "NOT_AVAILABLE",
+    "coverage_percent": "NOT_AVAILABLE",
+    "import_result": "NOT_AVAILABLE",
+    "startup_result": "NOT_AVAILABLE",
+    "docker_result": "NOT_AVAILABLE"
+  },
+  "discrepancies": [
+    "NOT_AVAILABLE — to be filled after execution"
+  ]
+}
