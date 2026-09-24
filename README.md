@@ -1,52 +1,144 @@
 # Ascended Intelligence Core — TrustOS
 
-**The Operating System for Trustworthy Intelligence**
+**TrustOS: research and reference infrastructure for trustworthy intelligence**
 
-A governance, provenance, and adversarial testing architecture for autonomous AI agents.
+TrustOS is an open-source research and reference implementation exploring governance infrastructure for agentic AI.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TABS Score](https://img.shields.io/badge/TABS-89%25-gold)](https://github.com/jjlogic2011-maker/ascended-intelligence-core)
+The project focuses on preserving human authority, agent identity, authorization boundaries, provenance, evidence, auditability, and accountable execution as AI systems interact with software and external tools.
+
+This repository intentionally distinguishes current implementation from research architecture, specifications, roadmap components, and independently validated capabilities.
+
+---
+
+## Current Repository State
+
+The currently located implementation is a small Python service using Flask.
+
+### CURRENT IMPLEMENTATION
+
+The following components are present in source files. They are classified as CITED because no execution occurred in this audit session.
+
+| Component | Evidence Tier | Evidence |
+|---|---|---|
+| API | CITED | `api/app.py` |
+| Orchestrator | CITED | `core/orchestrator.py` |
+| Agent Router | CITED | `agents/router.py` |
+| Authentication | CITED | `security/auth.py` |
+| Experts package | CITED | `experts/` |
+| Unit tests | CITED | `tests/unit/` |
+| Integration tests | CITED | `tests/integration/` |
+| Docker configuration | CITED | `Dockerfile` |
+
+The presence of a source file is not, by itself, proof that behavior has been successfully executed or independently validated.
+
+### RESEARCH / ARCHITECTURE
+
+TrustOS research architecture discusses:
+
+- provenance and lineage;
+- human authority;
+- agent accountability;
+- auditability;
+- evidence;
+- governance boundaries;
+- continuity and memory concepts;
+- controlled execution;
+- artifact and evidence relationships.
+
+These concepts describe the broader research direction and must not be read as proof that every described component is implemented.
+
+### SPECIFICATION
+
+The following located materials describe concepts without a corresponding demonstrated executable implementation in the audited repository:
+
+- SHAPE Protocol: `docs/SHAPE_PROTOCOL.md`
+- AIRI-DNA: `docs/AIRI_DNA.md`
+- broader TrustOS architecture: `docs/TRUSTOS_ARCHITECTURE.md`
+- related research and design documents under `docs/`
+
+### ROADMAP
+
+The following are roadmap subjects in the located documentation:
+
+- Wasmer runtime integration;
+- Tenki runtime integration;
+- broader runtime adapters;
+- expanded TABS evaluation;
+- durable evidence infrastructure;
+- distributed or federated ledger concepts;
+- formal verification;
+- independent review and external validation.
+
+See [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+### NOT YET VALIDATED
+
+The following were not independently validated in this audit:
+
+- application startup;
+- Docker build or runtime;
+- complete test execution;
+- coverage;
+- TABS results;
+- production deployment;
+- security review;
+- independent validation of any TrustOS capability.
+
+The reported "42%" figure is an unverified reported figure. No denominator, raw result set, commit, or timestamp was available in the accessible repository evidence.
 
 ---
 
 ## Overview
 
-TrustOS is a unified governance control plane designed to ensure that agentic AI systems remain:
+TrustOS explores how agentic AI systems may preserve:
 
-- **Traceable** — Every action has a cryptographic lineage.
-- **Attributable** — Every contribution has a verifiable owner.
-- **Auditable** — Every decision is recorded and inspectable.
-- **Accountable** — Every outcome has a responsible party.
+- **Traceability** — linking actions to available provenance and evidence;
+- **Attribution** — recording declared actors and contributors;
+- **Auditability** — preserving inspectable decisions and events;
+- **Accountability** — associating declared responsibility with actions and outcomes.
 
-## The Five Gaps Addressed
+These are specification-level objectives and architectural principles. They are not claims that every objective is currently achieved by the repository.
 
-| Gap | Solution |
-|-----|----------|
-| Provenance Loss | AIRI-DNA cryptographic fingerprinting |
-| Authority Drift | SHAPE Protocol human approval gates |
-| Memory Erosion | Living Ledger immutable repository |
-| Evidence Vacuum | TABS adversarial evaluation |
-| Accountability Collapse | Wasmer/Tenki verifiable execution receipts |
+---
+
+## Research Architecture and the Five Gaps
+
+The following table preserves the project's research framing while distinguishing it from current implementation:
+
+| Research gap | TrustOS research direction | Current evidence classification |
+|---|---|---|
+| Provenance loss | AIRI-DNA provenance concepts | SPECIFICATION |
+| Authority drift | SHAPE human approval concepts | SPECIFICATION |
+| Memory or continuity erosion | Living Ledger concepts | SPECIFICATION |
+| Evidence vacuum | TABS evaluation concepts | ROADMAP |
+| Accountability collapse | Controlled execution and evidence receipts | SPECIFICATION |
+
+The classifications above describe the accessible repository state. They are not claims of completed implementation.
+
+---
 
 ## Core Components
 
-| Component | Description |
-|-----------|-------------|
-| **TrustOS Core** | API, artifact registry, evidence vault, governance engine |
-| **TABS** | 120+ adversarial tests across 12 domains |
-| **SHAPE Protocol** | Human approval gates and authority control |
-| **Living Ledger** | Immutable artifact repository with versioning and lineage |
-| **AIRI-DNA** | 12-dimensional cryptographic provenance fingerprinting |
-| **Runtime Adapters** | Wasmer, Tenki, and container execution substrates |
+| Component | Research description | Current maturity |
+|---|---|---|
+| TrustOS Core | A proposed governance and evidence architecture | SPECIFICATION |
+| SHAPE Protocol | Proposed human approval and authority-control model | SPECIFICATION |
+| Living Ledger | Proposed provenance and event-history model | SPECIFICATION |
+| AIRI-DNA | Proposed deterministic provenance representation | SPECIFICATION |
+| TABS | Proposed adversarial governance evaluation | ROADMAP |
+| Runtime Adapters | Proposed controlled execution substrates | ROADMAP |
+| Wasmer and Tenki | Future runtime integration subjects | ROADMAP |
 
-## The Governed Action Workflow
+No unsupported test count or percentage is claimed for TABS.
 
+---
 
-## Quick Start
+## Actual Application Architecture
 
-```bash
-git clone https://github.com/jjlogic2011-maker/ascended-intelligence-core.git
-cd ascended-intelligence-core
-pip install -r requirements.txt
-uvicorn src.api.main:app --reload
-```
+The audited application uses Flask.
+
+```text
+Framework: Flask
+Application object: api.app:app
+Container server: Gunicorn
+Container entry point: api.app:app
