@@ -39,3 +39,30 @@ def test_verify_default_insecure_key():
         if saved is not None:
             os.environ["AICI_API_KEY"] = saved
         importlib.reload(auth_module)
+
+
+# --- login() ---
+
+def test_login_valid_credentials(monkeypatch):
+    monkeypatch.setattr(auth_module, "API_KEY", "secret-key")
+    monkeypatch.setattr(auth_module, "USERNAME", "admin")
+    monkeypatch.setattr(auth_module, "PASSWORD", "s3cur3")
+    assert auth_module.login("admin", "s3cur3") == "secret-key"
+
+
+def test_login_wrong_password(monkeypatch):
+    monkeypatch.setattr(auth_module, "USERNAME", "admin")
+    monkeypatch.setattr(auth_module, "PASSWORD", "s3cur3")
+    assert auth_module.login("admin", "wrong") is None
+
+
+def test_login_wrong_username(monkeypatch):
+    monkeypatch.setattr(auth_module, "USERNAME", "admin")
+    monkeypatch.setattr(auth_module, "PASSWORD", "s3cur3")
+    assert auth_module.login("hacker", "s3cur3") is None
+
+
+def test_login_blocked_when_password_unset(monkeypatch):
+    monkeypatch.setattr(auth_module, "USERNAME", "admin")
+    monkeypatch.setattr(auth_module, "PASSWORD", "")
+    assert auth_module.login("admin", "") is None

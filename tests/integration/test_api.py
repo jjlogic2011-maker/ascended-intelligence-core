@@ -5,6 +5,8 @@ import security.auth as auth_module
 @pytest.fixture
 def client(monkeypatch):
     monkeypatch.setattr(auth_module, "API_KEY", "test-key")
+    monkeypatch.setattr(auth_module, "USERNAME", "admin")
+    monkeypatch.setattr(auth_module, "PASSWORD", "s3cur3")
     from api.app import app
     app.config["TESTING"] = True
     with app.test_client() as c:
@@ -79,3 +81,38 @@ def test_execute_default_type_routes_to_report(client):
                        headers={"x-api-key": "test-key"})
     assert resp.status_code == 200
     assert resp.get_json()["result"]["status"] == "success"
+
+
+# --- POST /login ---
+
+def test_login_valid_credentials(client):
+    resp = client.post("/login", json={"username": "admin", "password": "s3cur3"})
+    assert resp.status_code == 200
+    body = resp.get_json()
+    assert body["status"] == "connected"
+    assert body["api_key"] == "test-key"
+
+
+def test_login_wrong_password_returns_401(client):
+    resp = client.post("/login", json={"username": "admin", "password": "wrong"})
+    assert resp.status_code == 401
+    assert "error" in resp.get_json()
+
+
+def test_login_wrong_username_returns_401(client):
+    resp = client.post("/login", json={"username": "hacker", "password": "s3cur3"})
+    assert resp.status_code == 401
+
+
+def test_login_missing_body_returns_401(client):
+    resp = client.post("/login")
+    assert resp.status_code == 401
+
+
+def test_login_returned_key_works_for_execute(client):
+    login_resp = client.post("/login", json={"username": "admin", "password": "s3cur3"})
+    api_key = login_resp.get_json()["api_key"]
+    exec_resp = client.post("/execute", json={"type": "report"},
+                            headers={"x-api-key": api_key})
+    assert exec_resp.status_code == 200
+    assert exec_resp.get_json()["status"] == "executed"
