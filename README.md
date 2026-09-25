@@ -49,9 +49,8 @@ These concepts describe the broader research direction and must not be read as p
 
 ### SPECIFICATION
 
-The following located materials describe concepts without a corresponding demonstrated executable implementation in the audited repository:
+The following located materials describe concepts without a corresponding demonstrated executable implementation in the audited repository:`
 
-- SHAPE Protocol: `docs/SHAPE_PROTOCOL.md`
 - AIRI-DNA: `docs/AIRI_DNA.md`
 - broader TrustOS architecture: `docs/TRUSTOS_ARCHITECTURE.md`
 - related research and design documents under `docs/`
@@ -122,7 +121,7 @@ The classifications above describe the accessible repository state. They are not
 | Component | Research description | Current maturity |
 |---|---|---|
 | TrustOS Core | A proposed governance and evidence architecture | SPECIFICATION |
-| SHAPE Protocol | Proposed human approval and authority-control model | SPECIFICATION |
+| SHAPE Protocol | Human authorization state machine | VERIFIED |
 | Living Ledger | Proposed provenance and event-history model | SPECIFICATION |
 | AIRI-DNA | Proposed deterministic provenance representation | SPECIFICATION |
 | TABS | Proposed adversarial governance evaluation | ROADMAP |
