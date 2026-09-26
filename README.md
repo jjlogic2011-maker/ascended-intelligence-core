@@ -127,7 +127,7 @@ The classifications above describe the accessible repository state. They are not
 || TABS | 12-check adversarial governance suite | VERIFIED |
 | Runtime Adapters | Proposed controlled execution substrates | ROADMAP |
 | Wasmer and Tenki | Future runtime integration subjects | ROADMAP |
-Current test count, all passing, at commit b38aa72:
+
 Current verified state at commit 8f8735d:
 
 pytest suite:
