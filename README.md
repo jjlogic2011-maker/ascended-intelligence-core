@@ -128,18 +128,22 @@ The classifications above describe the accessible repository state. They are not
 | Runtime Adapters | Proposed controlled execution substrates | ROADMAP |
 | Wasmer and Tenki | Future runtime integration subjects | ROADMAP |
 Current test count, all passing, at commit b38aa72:
+Current verified state at commit 8f8735d:
+
+pytest suite:
 - 45 baseline tests
 - 7 SHAPE state machine tests
 - 8 AIRI-DNA tests
 - 7 Living Ledger tests
 - 10 governance loop tests
-- 12 TABS adversarial checks
+- Total: 77 pytest tests passing
 
-Total: 89 tests passing. TABS: 12/12.
+TABS adversarial suite (separate runner):
+- 12 checks, all passing
 
-Test counts are snapshots.Rerun pytest -q and python -m security.tabs to verify
----
-
+Test counts are snapshots. Re-run to verify:
+    pytest -q
+    python -m security.tabs
 ## Actual Application Architecture
 
 The audited application uses Flask.
