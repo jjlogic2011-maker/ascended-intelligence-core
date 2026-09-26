@@ -51,7 +51,7 @@ These concepts describe the broader research direction and must not be read as p
 
 The following located materials describe concepts without a corresponding demonstrated executable implementation in the audited repository:`
 
-`
+
 - broader TrustOS architecture: `docs/TRUSTOS_ARCHITECTURE.md`
 - related research and design documents under `docs/`
 
