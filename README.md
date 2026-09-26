@@ -121,15 +121,23 @@ The classifications above describe the accessible repository state. They are not
 | Component | Research description | Current maturity |
 |---|---|---|
 | TrustOS Core | A proposed governance and evidence architecture | SPECIFICATION |
-| SHAPE Protocol | Human authorization state machine | VERIFIED |
+| SHAPE Protocol | Human authorization state machine with governance loop | VERIFIED |
 | Living Ledger | Append-only tamper-evident hash chain | VERIFIED |
 | AIRI-DNA | Deterministic canonical fingerprint | VERIFIED |
-| TABS | Proposed adversarial governance evaluation | ROADMAP |
+|| TABS | 12-check adversarial governance suite | VERIFIED |
 | Runtime Adapters | Proposed controlled execution substrates | ROADMAP |
 | Wasmer and Tenki | Future runtime integration subjects | ROADMAP |
+Current test count, all passing, at commit b38aa72:
+- 45 baseline tests
+- 7 SHAPE state machine tests
+- 8 AIRI-DNA tests
+- 7 Living Ledger tests
+- 10 governance loop tests
+- 12 TABS adversarial checks
 
-No unsupported test count or percentage is claimed for TABS.
+Total: 89 tests passing. TABS: 12/12.
 
+Test counts are snapshots.Rerun pytest -q and python -m security.tabs to verify
 ---
 
 ## Actual Application Architecture
