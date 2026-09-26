@@ -189,3 +189,51 @@ class GovernanceEngine:
             fingerprint=fingerprint,
             evidence=evidence,
         )
+
+
+def process_with_grant(engine, request, *, grant, now=None):
+    """Process a request using an AuthorityGrant.
+
+    Verifies the grant is valid, that it matches the request agent,
+    and that its scope permits the action. On success, consumes the
+    grant and delegates to engine.process().
+    """
+    from security.authority import AuthorityGrant  # noqa: F401
+
+    if not grant.is_valid(now):
+        engine._audit(request, "DENIED")
+        return GovernanceResult(
+            request_id=request.request_id,
+            decision="DENIED",
+            executed=False,
+            reason="authority grant invalid (expired, revoked, or exhausted)",
+        )
+
+    if grant.agent_id != request.agent_id:
+        engine._audit(request, "DENIED")
+        return GovernanceResult(
+            request_id=request.request_id,
+            decision="DENIED",
+            executed=False,
+            reason="authority grant does not match request agent",
+        )
+
+    if not grant.permits(request.action):
+        engine._audit(request, "DENIED")
+        return GovernanceResult(
+            request_id=request.request_id,
+            decision="DENIED",
+            executed=False,
+            reason=f"grant scope does not permit action {request.action}",
+        )
+
+    auth = Authorization(request_id=request.request_id)
+    auth.transition(State.ASSESSED, actor="system")
+    auth.transition(State.APPROVED, actor=grant.principal_id)
+
+    result = engine.process(request, authorization=auth, now=now)
+
+    if result.executed:
+        grant.consume()
+
+    return result
