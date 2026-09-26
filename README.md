@@ -51,7 +51,7 @@ These concepts describe the broader research direction and must not be read as p
 
 The following located materials describe concepts without a corresponding demonstrated executable implementation in the audited repository:`
 
-- AIRI-DNA: `docs/AIRI_DNA.md`
+`
 - broader TrustOS architecture: `docs/TRUSTOS_ARCHITECTURE.md`
 - related research and design documents under `docs/`
 
@@ -122,8 +122,8 @@ The classifications above describe the accessible repository state. They are not
 |---|---|---|
 | TrustOS Core | A proposed governance and evidence architecture | SPECIFICATION |
 | SHAPE Protocol | Human authorization state machine | VERIFIED |
-| Living Ledger | Proposed provenance and event-history model | SPECIFICATION |
-| AIRI-DNA | Proposed deterministic provenance representation | SPECIFICATION |
+| Living Ledger | Append-only tamper-evident hash chain | VERIFIED |
+| AIRI-DNA | Deterministic canonical fingerprint | VERIFIED |
 | TABS | Proposed adversarial governance evaluation | ROADMAP |
 | Runtime Adapters | Proposed controlled execution substrates | ROADMAP |
 | Wasmer and Tenki | Future runtime integration subjects | ROADMAP |
@@ -140,4 +140,5 @@ The audited application uses Flask.
 Framework: Flask
 Application object: api.app:app
 Container server: Gunicorn
-Container entry point: api.app:app
+Container entry point: api.app:appAIRI-DNA | Proposed deterministic provenance r
+ |
