@@ -91,7 +91,7 @@ The reported "42%" figure is an unverified reported figure. No denominator, raw 
 
 TrustOS explores how agentic AI systems may preserve:
 
-- **Traceability** — linking actions to available provenance and evidence;
+- **Traceability** — linking actions to available provenance and evidence;  
 - **Attribution** — recording declared actors and contributors;
 - **Auditability** — preserving inspectable decisions and events;
 - **Accountability** — associating declared responsibility with actions and outcomes.
@@ -146,6 +146,7 @@ TABS adversarial suite (separate runner):
 Test counts are snapshots. Re-run to verify:
     pytest -q
     python -m security.tabs
+    
 ## Actual Application Architecture
 
 The audited application uses Flask.
@@ -154,5 +155,16 @@ The audited application uses Flask.
 Framework: Flask
 Application object: api.app:app
 Container server: Gunicorn
-Container entry point: api.app:appAIRI-DNA | Proposed deterministic provenance r
- |
+Container entry point: api.app:app
+### Existing execution path
+
+```text
+POST /execute
+→ authentication check (API key)
+→ governance loop (SHAPE + policy + Living Ledger)
+→ core orchestrator
+→ agent router
+→ evidence receipt
+```
+
+Every `/execute` call now writes a governance receipt to the Living Ledger.
