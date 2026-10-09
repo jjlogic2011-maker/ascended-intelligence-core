@@ -23,7 +23,7 @@ def _engine():
 
 
 def _approved():
-    a = Authorization(request_id="r")
+    a = Authorization(request_id="r-1")
     a.transition(State.ASSESSED, actor="system")
     a.transition(State.APPROVED, actor="human")
     return a
