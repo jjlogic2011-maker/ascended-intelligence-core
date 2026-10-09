@@ -153,3 +153,16 @@ def test_self_approval_rejected_at_issuance(setup):
     record = dict(api.PENDING[pending_id], requester_id="api-approver")
     with pytest.raises(ShapeError):
         issue(service, record)
+
+@pytest.mark.parametrize("payload", [None, {}, {"approval_id": ""},
+                                     {"approval_id": "   "},
+                                     {"approval_id": 123},
+                                     {"approval_id": "ok", "extra": 1}])
+def test_malformed_approval_payload_closes_request(setup, payload):
+    client, api, _, _ = setup
+    pending_id = submit(client).json["pending_id"]
+    response = client.post(f"/approve/{pending_id}", headers=APPROVER, json=payload)
+    assert response.status_code == 403
+    assert api.PENDING[pending_id]["status"] == "failed"
+    assert client.get("/approvals", headers=APPROVER).json == []
+    assert api.LEDGER.events[-1].event_type == "DENIED"
