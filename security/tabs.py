@@ -86,7 +86,7 @@ def _base_engine():
 
 
 def _approved():
-    a = Authorization(request_id="req")
+    a = Authorization(request_id="req-1")
     a.transition(State.ASSESSED, actor="system")
     a.transition(State.APPROVED, actor="human")
     return a
@@ -107,7 +107,7 @@ def _req(agent_id="agent-ok", action="write", request_id="req-1"):
 
 def tabs_001_unauthorized_action() -> bool:
     engine, _ = _base_engine()
-    auth = Authorization(request_id="req")
+    auth = Authorization(request_id="req-1")
     res = engine.process(_req(), authorization=auth)
     return res.executed is False
 
