@@ -125,11 +125,13 @@ The classifications above describe the accessible repository state. They are not
 | Living Ledger | Append-only tamper-evident hash chain | VERIFIED |
 | AIRI-DNA | Deterministic canonical fingerprint | VERIFIED |
 || TABS | 12-check adversarial governance suite | VERIFIED |
+| Human Gates | Approval service with atomic single-use consumption | VERIFIED |
+| Auth Hardening | Constant-time comparison; fail-closed on missing key | VERIFIED |
 | Authority Grants | Principal→agent delegated authority with scope, expiry, revocation | VERIFIED |
 | Runtime Adapters | Proposed controlled execution substrates | ROADMAP |
 | Wasmer and Tenki | Future runtime integration subjects | ROADMAP |
 
-Current verified state at commit 8f8735d:
+Current verified state at commit c01244c:
 
 pytest suite:
 - 45 baseline tests
@@ -139,7 +141,9 @@ pytest suite:
 - 10 governance loop tests
 - 10 authority grant tests
 - 6 grant-path governance tests
-- Total: 93 pytest tests passing
+- 7 API governance integration tests
+- 14 human gate and approval service tests
+- Total: 113 pytest tests passing (1 xpassed — see pytest.ini)
 TABS adversarial suite (separate runner):
 - 12 checks, all passing
 
