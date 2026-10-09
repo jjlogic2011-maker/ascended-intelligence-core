@@ -221,6 +221,7 @@ def approve(pending_id):
         if (not isinstance(data, dict) or set(data) != {"approval_id"} or
                 not isinstance(data["approval_id"], str) or not data["approval_id"].strip()):
             _action_audit(record, "DENIED")
+            record["status"] = "failed"
             return jsonify({"reason": "Approval ID required"}), 403
         record["status"] = "processing"
         try:
