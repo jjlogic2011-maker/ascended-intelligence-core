@@ -22,7 +22,8 @@ from dataclasses import dataclass, field
 
 from security.airi_dna import build_dna, fingerprint_content
 from security.ledger import LivingLedger
-from security.shape import Authorization, State
+from security.shape import Authorization, ShapeError, State
+from security.human_gates import enforce_human_gate
 
 
 class GovernanceError(Exception):
@@ -92,7 +93,8 @@ class GovernanceEngine:
             artifact_id=request.artifact_id,
         )
 
-    def process(self, request, *, authorization, now=None):
+    def process(self, request, *, authorization, now=None, approval_service=None,
+                approval_id=None, requester_id=None, arguments=None):
         if request.request_id in self._seen_request_ids:
             self._audit(request, "DENIED")
             return GovernanceResult(
@@ -141,6 +143,24 @@ class GovernanceEngine:
                 reason=f"authorization not APPROVED (state={authorization.state.value})",
             )
 
+        try:
+            if authorization.request_id != request.request_id:
+                raise ShapeError("authorization request mismatch")
+            if requester_id is not None and requester_id != request.agent_id:
+                raise ShapeError("requester identity mismatch")
+            human_approver = enforce_human_gate(
+                authorization, request.action,
+                service=approval_service, approval_id=approval_id,
+                requester_id=request.agent_id, resource=request.artifact_id,
+                arguments=arguments,
+            )
+        except ShapeError as e:
+            self._audit(request, "DENIED")
+            return GovernanceResult(
+                request_id=request.request_id, decision="DENIED",
+                executed=False, reason=str(e),
+            )
+
         simulated_result = {
             "action": request.action,
             "artifact_id": request.artifact_id,
@@ -171,6 +191,8 @@ class GovernanceEngine:
         self._seen_request_ids.add(request.request_id)
 
         evidence = {
+            "human_approval_id": approval_id if human_approver else None,
+            "human_approver": human_approver,
             "request_id": request.request_id,
             "agent_id": request.agent_id,
             "action": request.action,

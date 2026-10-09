@@ -34,7 +34,9 @@ def test_verify_default_insecure_key():
     saved = os.environ.pop("AICI_API_KEY", None)
     try:
         importlib.reload(auth_module)
-        assert auth_module.API_KEY == "change-me"
+        assert auth_module.API_KEY is None
+        assert not auth_module.verify(_make_request("change-me"))
+        assert not auth_module.verify(_make_request("anything"))
     finally:
         if saved is not None:
             os.environ["AICI_API_KEY"] = saved
