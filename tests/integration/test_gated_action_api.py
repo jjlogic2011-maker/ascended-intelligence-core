@@ -12,7 +12,8 @@ def setup(monkeypatch, tmp_path):
     api = importlib.import_module("api.app")
     monkeypatch.setattr(auth, "API_KEY", "agent-key")
     monkeypatch.setattr(auth, "APPROVER_KEY", "approver-key")
-    monkeypatch.setattr(api, "PENDING", {})
+    monkeypatch.setenv("AICI_PENDING_DB", str(tmp_path / "pending.sqlite3"))
+    monkeypatch.setitem(api.app.config, "PENDING_STORE", None)
     clock = [100.0]
     service = ApprovalService(tmp_path / "approvals.db", verify_human=auth.approver_identity,
                               clock=lambda: clock[0])
@@ -73,7 +74,7 @@ def test_invalid_approval_is_denied(setup):
     assert response.status_code == 403
     assert response.json["executed"] is False
     assert api.LEDGER.events[-1].event_type == "DENIED"
-    assert api.PENDING[pending_id]["status"] == "failed"
+    assert api._pending_store().get(pending_id)["status"] == "failed"
     assert client.get("/approvals", headers=APPROVER).json == []
     assert client.post(f"/approve/{pending_id}", headers=APPROVER,
                        json={"approval_id": "another"}).status_code == 403
@@ -82,7 +83,7 @@ def test_invalid_approval_is_denied(setup):
 def test_valid_approval_executes_once_with_receipt(setup):
     client, api, service, _ = setup
     pending_id = submit(client).json["pending_id"]
-    approval_id = issue(service, api.PENDING[pending_id])
+    approval_id = issue(service, api._pending_store().get(pending_id))
     response = client.post(f"/approve/{pending_id}", headers=APPROVER,
                            json={"approval_id": approval_id})
     assert response.status_code == 200
@@ -100,10 +101,10 @@ def test_valid_approval_executes_once_with_receipt(setup):
 def test_deny_writes_receipt_and_blocks_approval(setup):
     client, api, service, _ = setup
     pending_id = submit(client).json["pending_id"]
-    approval_id = issue(service, api.PENDING[pending_id])
+    approval_id = issue(service, api._pending_store().get(pending_id))
     response = client.post(f"/deny/{pending_id}", headers=APPROVER)
     assert response.status_code == 200
-    assert api.PENDING[pending_id]["status"] == "denied"
+    assert api._pending_store().get(pending_id)["status"] == "denied"
     assert api.LEDGER.events[-1].event_type == "DENIED"
     assert client.get("/approvals", headers=APPROVER).json == []
     assert client.post(f"/approve/{pending_id}", headers=APPROVER,
@@ -114,13 +115,17 @@ def test_deny_writes_receipt_and_blocks_approval(setup):
 def test_invalidated_scope_or_approval(setup, failure):
     client, api, service, clock = setup
     pending_id = submit(client).json["pending_id"]
-    approval_id = issue(service, api.PENDING[pending_id])
+    approval_id = issue(service, api._pending_store().get(pending_id))
     if failure == "expired":
         clock[0] = 400
     elif failure == "revoked":
         service.revoke(approval_id)
     else:
-        api.PENDING[pending_id]["arguments"] = {"commit": "changed"}
+        _rec = api._pending_store().get(pending_id)
+
+        _rec["arguments"] = {"commit": "changed"}
+
+        api._pending_store().put(pending_id, _rec)
     assert client.post(f"/approve/{pending_id}", headers=APPROVER,
                        json={"approval_id": approval_id}).status_code == 403
 
@@ -150,7 +155,7 @@ def test_unknown_action_and_bad_identity_rejected(setup):
 def test_self_approval_rejected_at_issuance(setup):
     client, api, service, _ = setup
     pending_id = submit(client).json["pending_id"]
-    record = dict(api.PENDING[pending_id], requester_id="api-approver")
+    record = dict(api._pending_store().get(pending_id), requester_id="api-approver")
     with pytest.raises(ShapeError):
         issue(service, record)
 
@@ -163,6 +168,6 @@ def test_malformed_approval_payload_closes_request(setup, payload):
     pending_id = submit(client).json["pending_id"]
     response = client.post(f"/approve/{pending_id}", headers=APPROVER, json=payload)
     assert response.status_code == 403
-    assert api.PENDING[pending_id]["status"] == "failed"
+    assert api._pending_store().get(pending_id)["status"] == "failed"
     assert client.get("/approvals", headers=APPROVER).json == []
     assert api.LEDGER.events[-1].event_type == "DENIED"

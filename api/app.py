@@ -8,6 +8,7 @@ from flask import Flask, request, jsonify
 
 from core.orchestrator import Orchestrator
 from security.auth import verify, verify_approver, approver_identity
+from security.pending_store import PendingStore
 from security.approval_service import ApprovalService
 from security.human_gates import HUMAN_GATED_ACTIONS, is_gated
 from security.governance import (
@@ -120,8 +121,17 @@ def execute():
 
 
 # Additive JSON action API. Pending state is process-local; actions are simulated.
-PENDING = {}
 PENDING_LOCK = threading.RLock()
+
+
+def _pending_store():
+    store = app.config.get("PENDING_STORE")
+    if store is None:
+        os.makedirs(app.instance_path, exist_ok=True)
+        db_path = os.getenv("AICI_PENDING_DB", os.path.join(app.instance_path, "pending.sqlite3"))
+        store = PendingStore(db_path)
+        app.config["PENDING_STORE"] = store
+    return store
 ACTION_POLICIES = {**POLICIES, **{name: {"execute"} for name in HUMAN_GATED_ACTIONS}}
 ACTION_GOVERNANCE = GovernanceEngine(
     ledger=LEDGER, agents=AGENTS, policies=ACTION_POLICIES
@@ -194,7 +204,7 @@ def action():
     with PENDING_LOCK:
         if is_gated(record["action"]):
             _action_audit(record, "PENDING_HUMAN_APPROVAL")
-            PENDING[record["pending_id"]] = record
+            _pending_store().put(record["pending_id"], record)
             return jsonify({"status": "pending_approval", "pending_id": record["pending_id"],
                             "action": record["action"]}), 202
         result = _run_action(record)
@@ -205,44 +215,43 @@ def action():
 def approvals():
     if not verify_approver(request):
         return jsonify({"reason": "Approver credential required"}), 401
-    with PENDING_LOCK:
-        return jsonify([r for r in PENDING.values() if r["status"] == "pending_approval"])
+    return jsonify(_pending_store().list_pending())
 
 
 @app.route("/approve/<pending_id>", methods=["POST"])
 def approve(pending_id):
     if not verify_approver(request):
         return jsonify({"reason": "Approver credential required"}), 401
-    with PENDING_LOCK:
-        record = PENDING.get(pending_id)
-        if record is None or record["status"] != "pending_approval":
-            return jsonify({"reason": "No active pending request"}), 403
-        data = request.get_json(silent=True)
-        if (not isinstance(data, dict) or set(data) != {"approval_id"} or
-                not isinstance(data["approval_id"], str) or not data["approval_id"].strip()):
-            _action_audit(record, "DENIED")
-            record["status"] = "failed"
-            return jsonify({"reason": "Approval ID required"}), 403
-        record["status"] = "processing"
-        try:
-            result = _run_action(record, data["approval_id"])
-        except Exception:
-            record["status"] = "failed"
-            _action_audit(record, "DENIED")
-            return jsonify({"reason": "Approval processing failed; request closed"}), 403
-        record["status"] = "executed" if result.executed else "failed"
-        return jsonify(asdict(result)), 200 if result.executed else 403
+    store = _pending_store()
+    record = store.get(pending_id)
+    if record is None or record["status"] != "pending_approval":
+        return jsonify({"reason": "No active pending request"}), 403
+    data = request.get_json(silent=True)
+    if (not isinstance(data, dict) or set(data) != {"approval_id"} or
+            not isinstance(data["approval_id"], str) or not data["approval_id"].strip()):
+        _action_audit(record, "DENIED")
+        store.update_status(pending_id, "failed")
+        return jsonify({"reason": "Approval ID required"}), 403
+    store.update_status(pending_id, "processing")
+    try:
+        result = _run_action(record, data["approval_id"])
+    except Exception:
+        store.update_status(pending_id, "failed")
+        _action_audit(record, "DENIED")
+        return jsonify({"reason": "Approval processing failed; request closed"}), 403
+    store.update_status(pending_id, "executed" if result.executed else "failed")
+    return jsonify(asdict(result)), 200 if result.executed else 403
 
 
 @app.route("/deny/<pending_id>", methods=["POST"])
 def deny(pending_id):
     if not verify_approver(request):
         return jsonify({"reason": "Approver credential required"}), 401
-    with PENDING_LOCK:
-        record = PENDING.get(pending_id)
-        if record is None or record["status"] != "pending_approval":
-            return jsonify({"reason": "No active pending request"}), 403
-        receipt = _action_audit(record, "DENIED")
-        record["status"] = "denied"
-        return jsonify({"status": "denied", "pending_id": pending_id,
-                        "receipt_event_id": receipt.event_id})
+    store = _pending_store()
+    record = store.get(pending_id)
+    if record is None or record["status"] != "pending_approval":
+        return jsonify({"reason": "No active pending request"}), 403
+    receipt = _action_audit(record, "DENIED")
+    store.update_status(pending_id, "denied")
+    return jsonify({"status": "denied", "pending_id": pending_id,
+                    "receipt_event_id": receipt.event_id})
