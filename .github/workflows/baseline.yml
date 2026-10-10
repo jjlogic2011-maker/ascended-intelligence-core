@@ -27,15 +27,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-          pip install pytest coverage
+          pip install pytest pytest-cov coverage
 
       - name: Pytest
-        run: pytest -q
+        run: pytest -q -o addopts=""
 
       - name: Coverage
-        run: |
-          coverage run -m pytest -q
-          coverage report
+        run: pytest -q -o addopts="" --cov=agents --cov=api --cov=core --cov=experts --cov=security --cov-report=term-missing
 
       - name: TABS
         run: python -m security.tabs
