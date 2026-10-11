@@ -1,0 +1,5 @@
+# Optional scientific extras for the QCR Lab.
+# Install with: pip install -r requirements-scientific.txt
+# These are NOT required for the core TrustOS governance service.
+numpy>=1.24
+scipy>=1.10
