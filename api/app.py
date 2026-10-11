@@ -404,3 +404,10 @@ def ui_deny(pending_id):
     body, _status = _do_deny(pending_id)
     msg = "Denied." if body.get("status") == "denied" else body.get("reason", "Deny failed.")
     return redirect(url_for("ui_index", message=msg))
+
+
+# ---------------------------------------------------------------------
+# QCR Lab research routes (AI-QCR-2026-001) — additive, non-breaking
+# ---------------------------------------------------------------------
+from api.research_routes import research_bp
+app.register_blueprint(research_bp)
