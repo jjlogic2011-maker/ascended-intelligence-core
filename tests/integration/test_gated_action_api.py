@@ -159,6 +159,7 @@ def test_self_approval_rejected_at_issuance(setup):
     with pytest.raises(ShapeError):
         issue(service, record)
 
+
 @pytest.mark.parametrize("payload", [None, {}, {"approval_id": ""},
                                      {"approval_id": "   "},
                                      {"approval_id": 123},
@@ -171,3 +172,52 @@ def test_malformed_approval_payload_closes_request(setup, payload):
     assert api._pending_store().get(pending_id)["status"] == "failed"
     assert client.get("/approvals", headers=APPROVER).json == []
     assert api.LEDGER.events[-1].event_type == "DENIED"
+
+
+# ---------------------------------------------------------------------------
+# GGM-01 hardening: raw-body and agent non-mutation cases
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("raw_body,content_type", [
+    (b"", "application/json"),                         # empty body
+    (b"null", "application/json"),                     # JSON null
+    (b"[]", "application/json"),                       # JSON array
+    (b"{bad", "application/json"),                     # invalid JSON
+    (b'{"approval_id": null}', "application/json"),    # null approval_id
+])
+def test_malformed_raw_body_closes_request(setup, raw_body, content_type):
+    """Authenticated malformed raw bodies must close the request terminally."""
+    client, api, _, _ = setup
+    pending_id = submit(client).json["pending_id"]
+    response = client.post(
+        f"/approve/{pending_id}",
+        headers=APPROVER,
+        data=raw_body,
+        content_type=content_type,
+    )
+    assert response.status_code == 403
+    assert api._pending_store().get(pending_id)["status"] == "failed"
+    assert client.get("/approvals", headers=APPROVER).json == []
+    assert api.LEDGER.events[-1].event_type == "DENIED"
+    # Retry must remain closed — no execution, no duplicate active pending
+    assert client.post(
+        f"/approve/{pending_id}",
+        headers=APPROVER,
+        json={"approval_id": "any"},
+    ).status_code == 403
+
+
+def test_agent_malformed_does_not_mutate(setup):
+    """Agent credential with malformed input must not close or audit the request."""
+    client, api, _, _ = setup
+    pending_id = submit(client).json["pending_id"]
+    before_events = len(api.LEDGER.events)
+    r = client.post(
+        f"/approve/{pending_id}",
+        headers=AGENT,          # agent key, not approver
+        json={},
+    )
+    assert r.status_code == 401
+    assert api._pending_store().get(pending_id)["status"] == "pending_approval"
+    assert len(api.LEDGER.events) == before_events
+    assert client.get("/approvals", headers=APPROVER).json[0]["pending_id"] == pending_id
