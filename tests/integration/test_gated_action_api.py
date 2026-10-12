@@ -159,15 +159,88 @@ def test_self_approval_rejected_at_issuance(setup):
     with pytest.raises(ShapeError):
         issue(service, record)
 
-@pytest.mark.parametrize("payload", [None, {}, {"approval_id": ""},
-                                     {"approval_id": "   "},
-                                     {"approval_id": 123},
-                                     {"approval_id": "ok", "extra": 1}])
-def test_malformed_approval_payload_closes_request(setup, payload):
-    client, api, _, _ = setup
+def _denied_ids(api, pending_id):
+    return [
+        event.event_id for event in api.LEDGER.events
+        if event.event_type == "DENIED" and event.request_id == pending_id
+    ]
+
+
+def _executed_ids(api, pending_id):
+    return [
+        event.event_id for event in api.LEDGER.events
+        if event.event_type == "EXECUTED" and event.request_id == pending_id
+    ]
+
+
+# Raw bodies, not the test client's json= helper. json=None omits the body
+# and cannot express JSON null, a JSON array, invalid JSON, or an empty body.
+MALFORMED_APPROVAL_BODIES = [
+    pytest.param(b"{}", "application/json", id="empty-object"),
+    pytest.param(b'{"approval_id":""}', "application/json", id="empty-approval-id"),
+    pytest.param(b'{"approval_id":"   "}', "application/json", id="whitespace-approval-id"),
+    pytest.param(b'{"approval_id":null}', "application/json", id="null-approval-id"),
+    pytest.param(b'{"approval_id":123}', "application/json", id="numeric-approval-id"),
+    pytest.param(
+        b'{"approval_id":"ok","extra":1}', "application/json", id="unexpected-field",
+    ),
+    pytest.param(b"null", "application/json", id="json-null"),
+    pytest.param(b"[]", "application/json", id="json-array"),
+    pytest.param(b"{", "application/json", id="invalid-json"),
+    pytest.param(b"", "application/json", id="empty-body"),
+]
+
+
+def _post_approval(client, pending_id, body, content_type, headers):
+    return client.post(
+        f"/approve/{pending_id}",
+        headers=headers,
+        data=body,
+        content_type=content_type,
+    )
+
+
+@pytest.mark.parametrize("body,content_type", MALFORMED_APPROVAL_BODIES)
+def test_malformed_approval_payload_closes_request(setup, body, content_type):
+    client, api, service, _ = setup
     pending_id = submit(client).json["pending_id"]
-    response = client.post(f"/approve/{pending_id}", headers=APPROVER, json=payload)
+    before = _denied_ids(api, pending_id)
+    response = _post_approval(client, pending_id, body, content_type, APPROVER)
     assert response.status_code == 403
+    assert response.json["reason"] == "Approval ID required"
     assert api._pending_store().get(pending_id)["status"] == "failed"
     assert client.get("/approvals", headers=APPROVER).json == []
-    assert api.LEDGER.events[-1].event_type == "DENIED"
+    denied = _denied_ids(api, pending_id)
+    assert len(denied) == len(before) + 1
+    assert api.LEDGER.verify()[0] is True
+
+    record = api._pending_store().get(pending_id)
+    approval_id = issue(service, record)
+    follow_up = client.post(
+        f"/approve/{pending_id}", headers=APPROVER, json={"approval_id": approval_id},
+    )
+    assert follow_up.status_code == 403
+    assert follow_up.json.get("executed") is not True
+    assert api._pending_store().get(pending_id)["status"] == "failed"
+    assert _executed_ids(api, pending_id) == []
+    assert _denied_ids(api, pending_id) == denied
+
+    retry = _post_approval(client, pending_id, body, content_type, APPROVER)
+    assert retry.status_code == 403
+    assert api._pending_store().get(pending_id)["status"] == "failed"
+    assert _denied_ids(api, pending_id) == denied
+    assert _executed_ids(api, pending_id) == []
+    assert api.LEDGER.verify()[0] is True
+
+
+@pytest.mark.parametrize("body,content_type", MALFORMED_APPROVAL_BODIES)
+def test_agent_malformed_approval_does_not_mutate(setup, body, content_type):
+    client, api, _, _ = setup
+    pending_id = submit(client).json["pending_id"]
+    before = [event.event_id for event in api.LEDGER.events]
+    response = _post_approval(client, pending_id, body, content_type, AGENT)
+    assert response.status_code == 401
+    assert api._pending_store().get(pending_id)["status"] == "pending_approval"
+    assert [event.event_id for event in api.LEDGER.events] == before
+    listed = client.get("/approvals", headers=APPROVER).json
+    assert [row["pending_id"] for row in listed] == [pending_id]
