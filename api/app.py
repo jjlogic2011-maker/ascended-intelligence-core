@@ -1,4 +1,5 @@
 import json
+import time
 import uuid
 import os
 import threading
@@ -177,22 +178,23 @@ def _run_action(record, approval_id=None):
     )
 
 
-@app.route("/action", methods=["POST"])
-def action():
-    if not verify(request):
-        return jsonify({"reason": "Unauthorized"}), 401
-    data = request.get_json(silent=True)
+
+def _process_action_payload(data):
+    """Shared logic for /action and /noi001/command.
+
+    Returns (body_dict, http_status). Caller must verify auth first.
+    """
     fields = {"action", "resource", "arguments", "agent_id", "requester_id"}
     if not isinstance(data, dict) or set(data) != fields:
-        return jsonify({"reason": "Exact action request fields required"}), 400
+        return {"reason": "Exact action request fields required"}, 400
     if (not isinstance(data["arguments"], dict) or
             any(not isinstance(data[k], str) or not data[k].strip()
                 for k in fields - {"arguments"})):
-        return jsonify({"reason": "Invalid request fields"}), 400
+        return {"reason": "Invalid request fields"}, 400
     try:
         record = json.loads(json.dumps(data, allow_nan=False))
     except (ValueError, TypeError):
-        return jsonify({"reason": "Arguments must be finite JSON"}), 400
+        return {"reason": "Arguments must be finite JSON"}, 400
     record.update(pending_id=str(uuid.uuid4()), status="pending_approval")
     agent = AGENTS.get(record["agent_id"])
     required = ACTION_POLICIES.get(record["action"])
@@ -200,15 +202,147 @@ def action():
             not required.issubset(agent.authority_scope) or
             record["requester_id"] != record["agent_id"]):
         _action_audit(record, "DENIED")
-        return jsonify({"reason": "Unknown action, agent, or insufficient bound authority"}), 403
+        return {"reason": "Unknown action, agent, or insufficient bound authority"}, 403
     with PENDING_LOCK:
         if is_gated(record["action"]):
             _action_audit(record, "PENDING_HUMAN_APPROVAL")
             _pending_store().put(record["pending_id"], record)
-            return jsonify({"status": "pending_approval", "pending_id": record["pending_id"],
-                            "action": record["action"]}), 202
+            return {
+                "status": "pending_approval",
+                "pending_id": record["pending_id"],
+                "action": record["action"],
+            }, 202
         result = _run_action(record)
-        return jsonify(asdict(result)), 200 if result.executed else 403
+        return asdict(result), 200 if result.executed else 403
+
+
+@app.route("/action", methods=["POST"])
+def action():
+    if not verify(request):
+        return jsonify({"reason": "Unauthorized"}), 401
+    body, status = _process_action_payload(request.get_json(silent=True))
+    return jsonify(body), status
+
+
+# ---------------------------------------------------------------------
+# NOI-001 governed command route
+#
+# Thin wrapper over /action. Accepts one of a fixed set of normalized
+# commands. Unrecognized commands are denied fail-closed. Execution
+# still routes through SHAPE + Living Ledger + approval gates.
+#
+# The vocabulary below is the shared contract with the speech
+# front-end. If the demonstrator uses different strings, replace
+# this dict — nothing else needs to change.
+# ---------------------------------------------------------------------
+NOI001_VOCABULARY = {
+    "show status": {
+        "label": "STATUS",
+        "action": "read",
+        "resource": "noi001-system",
+        "visual": "[STATUS] System ready | SHAPE: operational | Ledger: intact",
+    },
+    "log intention": {
+        "label": "INTENTION",
+        "action": "write",
+        "resource": "noi001-session",
+        "visual": "[INTENTION] Logged and fingerprinted | receipt pending",
+    },
+    "clear display": {
+        "label": "CLEAR",
+        "action": "execute",
+        "resource": "noi001-display",
+        "visual": "[CLEAR] Display cleared",
+    },
+    "record coherence": {
+        "label": "COHERENCE",
+        "action": "write",
+        "resource": "noi001-sample",
+        "visual": "[COHERENCE] Sample recorded | timestamp stored",
+    },
+    "abort": {
+        "label": "ABORT",
+        "action": "execute",
+        "resource": "noi001-session",
+        "visual": "[ABORT] Session terminated cleanly",
+    },
+    "request deploy": {
+        "label": "DEPLOY",
+        "action": "production-deploy",
+        "resource": "noi001-staging",
+        "visual": "[DEPLOY] Completed",
+    },
+}
+
+
+@app.route("/noi001/command", methods=["POST"])
+def noi001_command():
+    if not verify(request):
+        return jsonify({"recognized": False, "reason": "Unauthorized"}), 401
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict) or set(data) != {"command"}:
+        return jsonify({
+            "recognized": False,
+            "reason": "Expected body with a single 'command' key",
+        }), 400
+
+    raw = data["command"]
+    if not isinstance(raw, str) or not raw.strip():
+        return jsonify({"recognized": False, "reason": "Invalid command"}), 400
+
+    command = raw.strip().lower()
+    spec = NOI001_VOCABULARY.get(command)
+    if spec is None:
+        return jsonify({
+            "recognized": False,
+            "reason": "Unrecognized command",
+        }), 400
+
+    payload = {
+        "action": spec["action"],
+        "resource": spec["resource"],
+        "arguments": {"command": command},
+        "agent_id": "api-agent",
+        "requester_id": "api-agent",
+    }
+
+    start = time.time()
+    body, status = _process_action_payload(payload)
+    latency_ms = round((time.time() - start) * 1000, 2)
+
+    if status == 202:
+        visual = "[" + spec["label"] + "] Request pending human approval"
+        reason = "Awaiting approval"
+        decision = "PENDING"
+        executed = False
+    elif status == 200 and body.get("executed"):
+        visual = spec["visual"]
+        reason = None
+        decision = body.get("decision", "EXECUTED")
+        executed = True
+    else:
+        reason = body.get("reason", "unknown")
+        visual = "[" + spec["label"] + "] Denied: " + reason
+        decision = "DENIED"
+        executed = False
+
+    response = {
+        "recognized": True,
+        "decision": decision,
+        "executed": executed,
+        "visual": visual,
+        "latency_ms": latency_ms,
+        "request_id": body.get("request_id"),
+        "receipt_event_id": body.get("receipt_event_id"),
+        "fingerprint": body.get("fingerprint"),
+    }
+    if status == 202:
+        response["pending_id"] = body.get("pending_id")
+        response["status"] = "pending_approval"
+    if reason:
+        response["reason"] = reason
+    return jsonify(response), status
 
 
 @app.route("/approvals", methods=["GET"])
