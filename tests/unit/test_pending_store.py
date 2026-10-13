@@ -53,11 +53,9 @@ def test_list_pending_only_lists_active(store):
 
 
 def test_restart_simulation(tmp_path):
-    """A fresh store instance against the same file sees previous data."""
     path = tmp_path / "pending.sqlite3"
     store1 = PendingStore(path)
     store1.put("p1", _record("p1"))
-    # Simulate process restart
     store2 = PendingStore(path)
     assert store2.get("p1") is not None
     assert store2.get("p1")["status"] == "pending_approval"
@@ -74,3 +72,44 @@ def test_clear_removes_all(store):
     store.clear()
     assert store.list_pending() == []
     assert store.get("p1") is None
+
+
+def test_claim_status_success(store):
+    store.put("p1", _record("p1"))
+    claimed = store.claim_status("p1", "pending_approval", "processing")
+    assert claimed is not None
+    assert claimed["status"] == "processing"
+    assert store.get("p1")["status"] == "processing"
+
+
+def test_claim_status_fails_when_not_pending(store):
+    store.put("p1", _record("p1", status="failed"))
+    assert store.claim_status("p1", "pending_approval", "processing") is None
+    assert store.get("p1")["status"] == "failed"
+
+
+def test_claim_status_only_one_winner_multiprocess(tmp_path):
+    """Two processes share one SQLite file; exactly one claim succeeds."""
+    import multiprocessing as mp
+
+    path = str(tmp_path / "race.sqlite3")
+    store = PendingStore(path)
+    store.put("p1", _record("p1"))
+
+    def worker(db_path, out_q):
+        s = PendingStore(db_path)
+        result = s.claim_status("p1", "pending_approval", "processing")
+        out_q.put(result is not None)
+
+    q: mp.Queue = mp.Queue()
+    procs = [mp.Process(target=worker, args=(path, q)) for _ in range(2)]
+    for p in procs:
+        p.start()
+    for p in procs:
+        p.join(timeout=15)
+        assert p.exitcode == 0
+
+    wins = [q.get(timeout=5), q.get(timeout=5)]
+    assert wins.count(True) == 1
+    assert wins.count(False) == 1
+    assert PendingStore(path).get("p1")["status"] == "processing"
