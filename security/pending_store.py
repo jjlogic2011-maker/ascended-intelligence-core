@@ -62,6 +62,7 @@ class PendingStore:
         return json.loads(row[0]) if row else None
 
     def update_status(self, pending_id: str, new_status: str) -> bool:
+        """Unconditional status write. Prefer claim_status for concurrent claims."""
         with self._lock, self._connect() as db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute(
@@ -77,6 +78,47 @@ class PendingStore:
                 (new_status, json.dumps(record, sort_keys=True, allow_nan=False), pending_id),
             )
             return True
+
+    def claim_status(
+        self, pending_id: str, from_status: str, to_status: str
+    ) -> Optional[dict]:
+        """
+        Atomically transition pending_id from from_status to to_status.
+
+        Uses BEGIN IMMEDIATE and UPDATE ... WHERE status=from_status so only
+        one concurrent worker sharing this database file can win the claim.
+
+        Returns updated record on success, or None if missing / wrong status.
+
+        threading.RLock is process-local. Cross-process safety comes from
+        SQLite locking + conditional UPDATE. Multi-host needs Postgres etc.
+        """
+        with self._lock, self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute(
+                "SELECT record_json, status FROM pending_requests WHERE pending_id=?",
+                (pending_id,),
+            ).fetchone()
+            if row is None:
+                return None
+            record = json.loads(row[0])
+            if record.get("status") != from_status or row[1] != from_status:
+                return None
+            record["status"] = to_status
+            cur = db.execute(
+                """UPDATE pending_requests
+                   SET status=?, record_json=?, updated_at=strftime('%s','now')
+                   WHERE pending_id=? AND status=?""",
+                (
+                    to_status,
+                    json.dumps(record, sort_keys=True, allow_nan=False),
+                    pending_id,
+                    from_status,
+                ),
+            )
+            if cur.rowcount != 1:
+                return None
+            return record
 
     def list_pending(self) -> list:
         with self._lock, self._connect() as db:
