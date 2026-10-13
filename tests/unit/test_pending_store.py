@@ -20,6 +20,16 @@ def _record(pending_id, status="pending_approval"):
     }
 
 
+def _claim_worker(db_path, out_q):
+    """Module-level for spawn-safe multiprocess test."""
+    try:
+        s = PendingStore(db_path)
+        result = s.claim_status("p1", "pending_approval", "processing")
+        out_q.put(("ok", result is not None))
+    except Exception as exc:  # noqa: BLE001
+        out_q.put(("err", str(exc)))
+
+
 def test_put_and_get(store):
     store.put("p1", _record("p1"))
     r = store.get("p1")
@@ -96,20 +106,22 @@ def test_claim_status_only_one_winner_multiprocess(tmp_path):
     store = PendingStore(path)
     store.put("p1", _record("p1"))
 
-    def worker(db_path, out_q):
-        s = PendingStore(db_path)
-        result = s.claim_status("p1", "pending_approval", "processing")
-        out_q.put(result is not None)
+    try:
+        ctx = mp.get_context("fork")
+    except ValueError:
+        ctx = mp.get_context("spawn")
 
-    q: mp.Queue = mp.Queue()
-    procs = [mp.Process(target=worker, args=(path, q)) for _ in range(2)]
+    q = ctx.Queue()
+    procs = [ctx.Process(target=_claim_worker, args=(path, q)) for _ in range(2)]
     for p in procs:
         p.start()
     for p in procs:
-        p.join(timeout=15)
-        assert p.exitcode == 0
+        p.join(timeout=30)
+        assert p.exitcode == 0, f"worker exited {p.exitcode}"
 
-    wins = [q.get(timeout=5), q.get(timeout=5)]
+    results = [q.get(timeout=10), q.get(timeout=10)]
+    assert all(r[0] == "ok" for r in results), results
+    wins = [r[1] for r in results]
     assert wins.count(True) == 1
     assert wins.count(False) == 1
     assert PendingStore(path).get("p1")["status"] == "processing"
