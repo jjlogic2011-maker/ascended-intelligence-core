@@ -18,12 +18,17 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import threading
 import time
 import uuid
 from dataclasses import asdict, dataclass
 
 GENESIS = "0" * 64
+
+# Schema identifier for receipts/docs. Event shape is the LedgerEvent fields below.
+# Bump only with a documented migration; do not silently reinterpret old lines.
+LEDGER_SCHEMA_VERSION = 1
 
 
 class LedgerError(Exception):
@@ -141,3 +146,33 @@ def load_ledger(path: str) -> LivingLedger:
             ledger._events.append(LedgerEvent(**data))
     ledger._path = path
     return ledger
+
+
+def open_ledger(path: str | None = None) -> LivingLedger:
+    """
+    Open a durable ledger at path, or an in-memory ledger if path is None/empty.
+
+    If the file exists, events are loaded and verified; verification failures
+    raise LedgerError (fail closed). If the file does not exist, a new chain
+    is started and subsequent appends persist to path.
+
+    Boundary: a local hash chain detects in-file tamper and broken links. It
+    does NOT prove that an attacker did not replace the entire file with a
+    different valid shorter chain. External checkpoints/signatures are out
+    of scope unless separately configured.
+    """
+    if not path:
+        return LivingLedger(path=None)
+    path = str(path)
+    if not os.path.exists(path):
+        return LivingLedger(path=path)
+    ledger = load_ledger(path)
+    ok, errors = ledger.verify()
+    if not ok:
+        raise LedgerError(f"ledger verify failed for {path}: {errors}")
+    return ledger
+
+
+def open_ledger_from_env(env_var: str = "AICI_LEDGER_PATH") -> LivingLedger:
+    """Factory for API process: durable if AICI_LEDGER_PATH is set, else memory."""
+    return open_ledger(os.environ.get(env_var) or None)
