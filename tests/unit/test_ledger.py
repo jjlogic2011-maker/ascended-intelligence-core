@@ -108,3 +108,59 @@ def test_correction_of_field():
     )
     assert correction.correction_of == original.event_id
 
+
+def test_open_ledger_restart_preserves_chain(tmp_path):
+    from security.ledger import open_ledger
+
+    path = tmp_path / "durable.jsonl"
+    l1 = open_ledger(str(path))
+    e1 = l1.append(
+        event_type="X", actor="a", agent="ag",
+        request_id="r1", artifact_id="art",
+    )
+    e2 = l1.append(
+        event_type="Y", actor="a", agent="ag",
+        request_id="r2", artifact_id="art",
+    )
+    l2 = open_ledger(str(path))
+    assert len(l2.events) == 2
+    assert l2.events[0].event_hash == e1.event_hash
+    assert l2.events[1].event_hash == e2.event_hash
+    ok, errors = l2.verify()
+    assert ok is True
+    assert errors == []
+
+
+def test_open_ledger_fails_closed_on_tamper(tmp_path):
+    from security.ledger import LedgerError, open_ledger
+
+    path = tmp_path / "tamper.jsonl"
+    l = open_ledger(str(path))
+    l.append(
+        event_type="X", actor="a", agent="ag",
+        request_id="r", artifact_id="art",
+    )
+    text = path.read_text(encoding="utf-8")
+    data = json.loads(text.strip())
+    data["artifact_id"] = "evil"
+    path.write_text(json.dumps(data) + "\n", encoding="utf-8")
+    try:
+        open_ledger(str(path))
+        raised = False
+    except LedgerError:
+        raised = True
+    assert raised is True
+
+
+def test_open_ledger_from_env_memory_by_default(monkeypatch):
+    from security.ledger import open_ledger_from_env
+
+    monkeypatch.delenv("AICI_LEDGER_PATH", raising=False)
+    l = open_ledger_from_env()
+    assert l._path is None
+
+
+def test_schema_version_constant():
+    from security.ledger import LEDGER_SCHEMA_VERSION
+
+    assert LEDGER_SCHEMA_VERSION == 1
