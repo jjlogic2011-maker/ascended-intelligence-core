@@ -1,6 +1,14 @@
+import multiprocessing as mp
+
 import pytest
 
 from security.pending_store import PendingStore
+
+
+def _claim_status_worker(db_path, out_q):
+    store = PendingStore(db_path)
+    result = store.claim_status("p1", "pending_approval", "processing")
+    out_q.put(result is not None)
 
 
 @pytest.fixture
@@ -90,19 +98,14 @@ def test_claim_status_fails_when_not_pending(store):
 
 def test_claim_status_only_one_winner_multiprocess(tmp_path):
     """Two processes share one SQLite file; exactly one claim succeeds."""
-    import multiprocessing as mp
-
     path = str(tmp_path / "race.sqlite3")
     store = PendingStore(path)
     store.put("p1", _record("p1"))
 
-    def worker(db_path, out_q):
-        s = PendingStore(db_path)
-        result = s.claim_status("p1", "pending_approval", "processing")
-        out_q.put(result is not None)
-
     q: mp.Queue = mp.Queue()
-    procs = [mp.Process(target=worker, args=(path, q)) for _ in range(2)]
+    procs = [
+        mp.Process(target=_claim_status_worker, args=(path, q)) for _ in range(2)
+    ]
     for p in procs:
         p.start()
     for p in procs:
