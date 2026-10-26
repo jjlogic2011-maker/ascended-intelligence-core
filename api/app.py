@@ -18,6 +18,7 @@ from security.governance import (
     GovernanceRequest,
 )
 from security.ledger import LivingLedger
+from security.telemetry import TelemetryEngine
 from security.shape import Authorization, State
 
 app = Flask(__name__)
@@ -44,6 +45,7 @@ POLICIES = {
 }
 
 GOVERNANCE = GovernanceEngine(ledger=LEDGER, agents=AGENTS, policies=POLICIES)
+TELEMETRY = TelemetryEngine(LEDGER)
 
 
 def _authorization_for_api(request_id):
@@ -202,6 +204,7 @@ def _process_action_payload(data):
             not required.issubset(agent.authority_scope) or
             record["requester_id"] != record["agent_id"]):
         _action_audit(record, "DENIED")
+        TELEMETRY.record_denial(record["action"], record["agent_id"], "Unknown action or insufficient authority")
         return {"reason": "Unknown action, agent, or insufficient bound authority"}, 403
     with PENDING_LOCK:
         if is_gated(record["action"]):
@@ -213,6 +216,10 @@ def _process_action_payload(data):
                 "action": record["action"],
             }, 202
         result = _run_action(record)
+        if result.executed:
+            TELEMETRY.record_execution(record["action"], record["agent_id"], record["pending_id"])
+        else:
+            TELEMETRY.record_denial(record["action"], record["agent_id"], result.reason)
         return asdict(result), 200 if result.executed else 403
 
 
