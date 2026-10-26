@@ -19,6 +19,7 @@ from security.governance import (
 )
 from security.ledger import LivingLedger
 from security.telemetry import TelemetryEngine
+from security.export import generate_export, verify_export
 from security.shape import Authorization, State
 
 app = Flask(__name__)
@@ -562,3 +563,17 @@ def ui_deny(pending_id):
     body, _status = _do_deny(pending_id)
     msg = "Denied." if body.get("status") == "denied" else body.get("reason", "Deny failed.")
     return redirect(url_for("ui_index", message=msg))
+
+# ---------------------------------------------------------------------
+# Integrity Export
+# ---------------------------------------------------------------------
+@app.route("/export/<request_id>", methods=["GET"])
+def export_receipt(request_id):
+    if not verify(request):
+        return jsonify({"reason": "Unauthorized"}), 401
+        
+    packet = generate_export(LEDGER, request_id)
+    if not packet:
+        return jsonify({"reason": "No events found for request_id"}), 404
+        
+    return jsonify(packet), 200
