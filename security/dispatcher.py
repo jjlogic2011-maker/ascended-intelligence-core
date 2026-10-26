@@ -21,32 +21,32 @@ class ExecutionDispatcher:
 
     def dispatch(self, request_id: str, action: str, grant: AuthorityGrant) -> DispatchResult:
         if request_id in self._processed:
-            return DispatchResult(False, "Duplicate dispatch prevented (Idempotency Key matched)")
+            return DispatchResult(False, "Duplicate dispatch prevented")
 
         if not grant.is_valid():
-            self.ledger.append(
-                event_type="DISPATCH_BLOCKED_REVOKED",
-                actor="system", agent=grant.agent_id, request_id=request_id, artifact_id=action
-            )
-            return DispatchResult(False, "Authority revoked or expired at execution boundary")
+            self.ledger.append(event_type="DISPATCH_BLOCKED_REVOKED", actor="system", agent=grant.agent_id, request_id=request_id, artifact_id=action)
+            return DispatchResult(False, "Authority revoked or expired")
 
-        self.ledger.append(
-            event_type="DISPATCH_INTENT", 
-            actor=grant.principal_id, agent=grant.agent_id, request_id=request_id, artifact_id=action
-        )
+        # Check action scope
+        if not grant.permits(action):
+             self.ledger.append(event_type="DISPATCH_BLOCKED_SCOPE", actor="system", agent=grant.agent_id, request_id=request_id, artifact_id=action)
+             return DispatchResult(False, "Action out of scope for grant")
+
+        self.ledger.append(event_type="DISPATCH_INTENT", actor=grant.principal_id, agent=grant.agent_id, request_id=request_id, artifact_id=action)
 
         try:
+            # Simulate the actual external effect taking time
             time.sleep(0.05) 
-            self.ledger.append(
-                event_type="DISPATCH_SUCCESS",
-                actor=grant.principal_id, agent=grant.agent_id, request_id=request_id, artifact_id=action
-            )
+            
+            # R01/R03-A: Atomic Re-check (The TOCTOU closure)
+            if not grant.is_valid():
+                self.ledger.append(event_type="DISPATCH_ABORTED_LATE_REVOCATION", actor="system", agent=grant.agent_id, request_id=request_id, artifact_id=action)
+                return DispatchResult(False, "Authority revoked during dispatch window")
+
+            self.ledger.append(event_type="DISPATCH_SUCCESS", actor=grant.principal_id, agent=grant.agent_id, request_id=request_id, artifact_id=action)
             self._processed[request_id] = True
             return DispatchResult(True, "Execution successful")
 
         except Exception as e:
-            self.ledger.append(
-                event_type="DISPATCH_FAILED", 
-                actor=grant.principal_id, agent=grant.agent_id, request_id=request_id, artifact_id=action
-            )
+            self.ledger.append(event_type="DISPATCH_FAILED", actor=grant.principal_id, agent=grant.agent_id, request_id=request_id, artifact_id=action)
             return DispatchResult(False, str(e), outcome_unknown=True)

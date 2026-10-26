@@ -40,8 +40,41 @@ def test_r03_concurrent_revocation_and_execution(setup):
 
 def test_r06_idempotency(setup):
     dispatcher, grant, ledger = setup
-    res1 = dispatcher.dispatch("req-idem", "deploy", grant)
+    res1 = dispatcher.dispatch("req-idem", "execute", grant)
     assert res1.success is True
-    res2 = dispatcher.dispatch("req-idem", "deploy", grant)
+    res2 = dispatcher.dispatch("req-idem", "execute", grant)
     assert res2.success is False
     assert "Duplicate dispatch" in res2.message
+
+def test_r03_a_revoke_during_dispatch(setup):
+    dispatcher, grant, ledger = setup
+    import threading, time
+    
+    def revoke():
+        time.sleep(0.02) # Revoke DURING the 0.05s sleep
+        grant.revoke()
+        
+    t = threading.Thread(target=revoke)
+    t.start()
+    
+    result = dispatcher.dispatch("req-race-late", "execute", grant)
+    t.join()
+    
+    assert result.success is False
+    assert "revoked during dispatch" in result.message
+    assert ledger.events[-1].event_type == "DISPATCH_ABORTED_LATE_REVOCATION"
+
+def test_r06_c_scope_and_exhaustion(setup):
+    dispatcher, grant, ledger = setup
+    
+    # Out of scope
+    res = dispatcher.dispatch("req-scope", "delete", grant)
+    assert res.success is False
+    assert "out of scope" in res.message
+    
+    # Exhausted grant
+    grant.max_uses = 1
+    grant.used_count = 1
+    res = dispatcher.dispatch("req-exhaust", "execute", grant)
+    assert res.success is False
+    assert "expired" in res.message or "revoked" in res.message
