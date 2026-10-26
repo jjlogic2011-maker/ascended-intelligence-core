@@ -1,18 +1,23 @@
-# Assessment grade operations
+# Assessment grade operations (A1)
 
-## Run
+## Fail-closed harness
 
 ```bash
+chmod +x scripts/assessment_grade.sh
 ./scripts/assessment_grade.sh
 ```
 
-## Pass criteria (A1)
+Any missing mandatory evidence exits non-zero:
 
-- [ ] pytest -q green  
-- [ ] export verify self-check true / tamper false  
-- [ ] README claim counts match CI within agreed tolerance  
-- [ ] LIMITATIONS.md present and linked  
+1. pytest green  
+2. coverage run without `|| true`  
+3. persistence_receipt (disk + reload)  
+4. export CLI verify + tamper rejection  
+5. concurrency claim one winner  
 
-## Artifact retention
+## Grade
 
-Keep: CI run URL, commit SHA, optional coverage summary, sample export hash (not customer data).
+- **A0** — reference kernel exists  
+- **A1** — this harness passes on a cited commit **and** CI is green for that commit  
+
+Documentation alone does not grant A1.

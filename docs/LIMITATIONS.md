@@ -11,33 +11,44 @@
 ## What this is NOT
 
 - **Not production-ready** for Fortune-50 multi-tenant SaaS without further engineering and assurance.
-- **Not** a full GRC suite (no complete AI inventory, intake committees, multi-framework residual risk workspace comparable to Credo AI / OneTrust AI / IBM watsonx.governance as of this document).
+- **Not** a full GRC suite comparable to Credo AI / OneTrust AI / IBM watsonx.governance.
 - **Not** AGI, consciousness, medical, or therapeutic software.
-- **Not** a certified zero-trust network product (ZTNA). Design is zero-trust-*oriented* (fail-closed grants, evidence).
+- **Not** a certified ZTNA product. Design is zero-trust-*oriented*.
 - **Not** SOC 2 / ISO 27001 certified unless an independent report is linked here.
+
+## Integrity export vs authenticity
+
+| Capability | Status |
+|------------|--------|
+| Offline **consistency** of an export packet (SHA-256 over canonical JSON) | Implemented (`verify_export` / CLI) |
+| **Independent authenticity** (who issued the packet: signature, TSA, external anchor) | **Not implemented** — do not promise this in pilots |
+
+Anyone who can rewrite the packet can recompute `export_hash`. Treat export as tamper-evident relative to the hash, not as non-repudiable third-party proof.
 
 ## Technical boundaries
 
 | Area | Current state |
 |------|----------------|
-| Identity | Shared API keys / early adapters; full OIDC + SCIM is roadmap |
-| Storage | Local ledger / SQLite patterns; not claimed multi-region HA |
-| Dispatch | Simulated by default; live adapters require explicit allowlist + human policy |
-| UI security | CSRF and session hardening are explicit work items |
-| Scale | Reference-scale; not benchmarked for 10k+ agents |
+| Identity | Shared API keys / early adapters; OIDC roadmap |
+| Gated `/action` + approve | Human approval path with pending store |
+| `/execute` | May construct internal authorization for legacy orchestrator — **do not** claim this route requires independent human grant |
+| Storage | `AICI_LEDGER_PATH` enables on-disk ledger; default process may be in-memory |
+| Dispatch | Simulated by default |
+| Concurrent claims | `PendingStore.claim_status` CAS; live HTTP path must use it |
 
 ## Allowed claims
 
-- Tests pass as reported by CI / `scripts/assessment_grade.sh`.
+- Tests pass as reported by CI / fail-closed `scripts/assessment_grade.sh`.
 - Living Ledger is append-only and tamper-*evident* (hash chain).
-- Integrity export can be verified offline with `verify_export`.
-- Fail-closed authorization when grants are missing/invalid (kernel paths).
+- Integrity export verifies offline for **packet integrity**.
+- Fail-closed authorization on **tested gated paths** when grants are missing/invalid.
 
 ## Forbidden claims (until evidenced)
 
-- “Replaces OneTrust / Credo / IBM for enterprise GRC.”
-- “Production certified” / “audit-ready for any regulator without mapping work.”
-- Exact test counts that disagree with README/CI.
+- “Replaces OneTrust / Credo / IBM.”
+- “Production certified” / universal regulator readiness.
+- “Cryptographically proves issuer identity” via export hash alone.
+- Exact test counts that disagree with the cited CI run.
 
 ## Human authority
 

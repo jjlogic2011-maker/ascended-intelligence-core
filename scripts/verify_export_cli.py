@@ -5,7 +5,7 @@ Usage:
   python scripts/verify_export_cli.py path/to/receipt.json
 
 Exit 0 if export_hash matches canonical packet; non-zero otherwise.
-Note: this checks integrity of the packet bytes, not external issuer authenticity.
+Note: checks integrity of the packet bytes, not external issuer authenticity.
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ def main() -> int:
     print("verify_export", ok)
     print("request_id", packet.get("request_id"))
     print("event_count", packet.get("event_count"))
-h = packet.get("export_hash") or ""
+    h = packet.get("export_hash") or ""
     print("export_hash", (h[:16] + "…") if h else "missing")
     return 0 if ok else 1
 
