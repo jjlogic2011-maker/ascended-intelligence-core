@@ -7,7 +7,7 @@ TrustOS is an open-source research and reference implementation providing an aut
 **Status: As of October 2026, the core kernel is operational and fully tested.**
 
 ## Verified Implementation
-- **195 tests passed**, 1 xpassed
+- **200 tests passed**, 1 xpassed
 - **80% overall code coverage**
 - **Living Ledger**: Tamper-evident hash chain (`security/ledger.py`)
 - **Telemetry Engine**: Live observability metrics (`security/telemetry.py`)
