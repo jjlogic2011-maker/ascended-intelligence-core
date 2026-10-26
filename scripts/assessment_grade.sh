@@ -1,73 +1,68 @@
 #!/usr/bin/env bash
-# TrustOS Assessment Grade Harness (A1)
-# Run from repo root after: pip install -r requirements.txt -r requirements-dev.txt
+# TrustOS Assessment Grade Harness (A1) — FAIL CLOSED
+# Mandatory evidence missing => non-zero exit.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-LEDGER_PATH="${AICI_LEDGER_PATH:-$ROOT/artifacts/assessment_ledger.jsonl}"
-mkdir -p "$(dirname "$LEDGER_PATH")"
+ARTIFACTS="$ROOT/artifacts/assessment"
+mkdir -p "$ARTIFACTS"
+LEDGER_PATH="$ARTIFACTS/assessment_ledger.jsonl"
+RECEIPT_PATH="$ARTIFACTS/sample_receipt.json"
+rm -f "$LEDGER_PATH" "$RECEIPT_PATH"
+
 export AICI_LEDGER_PATH="$LEDGER_PATH"
 export AICI_API_KEY="${AICI_API_KEY:-agent-demo-key}"
 
 echo "=============================================="
-echo " TrustOS Assessment Grade Harness (A1)"
+echo " TrustOS A1 Assessment Harness (fail-closed)"
 echo "=============================================="
 
 echo ""
-echo "=== 1. Unit tests (no hard --cov required) ==="
-python -m pytest -q --tb=line
+echo "=== 1. Unit tests (must pass) ==="
+python -m pytest -q --tb=line -o addopts=""
 
 echo ""
-echo "=== 2. Coverage on security/ and api/ (informational) ==="
-if python -c "import pytest_cov" 2>/dev/null; then
-  python -m pytest --cov=security --cov=api --cov-report=term-missing -q || true
-else
-  echo "pytest-cov not installed; skip coverage (CI should still run it)"
-fi
+echo "=== 2. Coverage on security/ and api/ (must run; no || true) ==="
+python -m pytest -q -o addopts="" --cov=security --cov=api --cov-report=term-missing
 
 echo ""
-echo "=== 3. Demo governed path ==="
-if [[ -f demo.py ]]; then
-  python demo.py
-else
-  echo "WARN: demo.py not found"
-fi
+echo "=== 3. Persistent ledger receipt (write, restart load, verify) ==="
+python scripts/persistence_receipt.py --ledger "$LEDGER_PATH"
+test -f "$LEDGER_PATH"
 
 echo ""
-echo "=== 4. Ledger integrity (if ledger file exists) ==="
-if [[ -f "$LEDGER_PATH" ]]; then
-  python -c "
-from security.ledger import load_ledger
-ok, errs = load_ledger(r'''$LEDGER_PATH''').verify()
-print('ledger_ok', ok)
-if not ok:
-    raise SystemExit('LEDGER VERIFY FAILED: ' + str(errs))
-"
-else
-  echo "No ledger at $LEDGER_PATH yet (demo may use in-memory only)"
-fi
-
-echo ""
-echo "=== 5. Offline export verifier self-check ==="
+echo "=== 4. Standalone export CLI (separate process + tamper fails) ==="
+python scripts/export_receipt_build.py --ledger "$LEDGER_PATH" --out "$RECEIPT_PATH"
+python scripts/verify_export_cli.py "$RECEIPT_PATH"
+# Tamper must fail
 python -c "
-from security.export import generate_export, verify_export
-from security.ledger import LivingLedger
-
-led = LivingLedger()
-led.append(event_type='ASSESSMENT', actor='harness', agent='test', request_id='assess-1', artifact_id='selfcheck')
-pkt = generate_export(led, 'assess-1')
-assert pkt is not None
-assert verify_export(pkt) is True
-# Tamper
-pkt['events'][0]['event_type'] = 'TAMPERED'
-assert verify_export(pkt) is False
-print('export_verify_ok True')
+import json, pathlib, subprocess, sys
+p = pathlib.Path(r'''$RECEIPT_PATH''')
+data = json.loads(p.read_text())
+data['events'][0]['event_type'] = 'TAMPERED'
+tampered = p.with_name('tampered_receipt.json')
+tampered.write_text(json.dumps(data))
+r = subprocess.run([sys.executable, 'scripts/verify_export_cli.py', str(tampered)])
+assert r.returncode != 0, 'tampered receipt must fail verification'
+print('tamper_rejected_ok')
 "
 
 echo ""
+echo "=== 5. Concurrent claim receipt (one winner) ==="
+python scripts/concurrency_claim_receipt.py
+
+echo ""
+echo "=== 6. Demo (informational; durable path proven in step 3) ==="
+if [[ -f demo.py ]]; then
+  python demo.py || { echo "demo failed"; exit 1; }
+fi
+
+echo ""
 echo "=============================================="
-echo " A1 CANDIDATE: tests + export verify path OK"
-echo " Review docs/LIMITATIONS.md before any claim."
+echo " A1 HARNESS PASSED"
+echo " ledger:  $LEDGER_PATH"
+echo " receipt: $RECEIPT_PATH"
+echo " See docs/LIMITATIONS.md — offline hash ≠ external authenticity."
 echo "=============================================="
