@@ -7,6 +7,7 @@ import time
 from dataclasses import dataclass
 from security.authority import AuthorityGrant
 from security.ledger import LivingLedger
+from security.external_adapter import EXTERNAL_DB
 
 @dataclass
 class DispatchResult:
@@ -27,7 +28,6 @@ class ExecutionDispatcher:
             self.ledger.append(event_type="DISPATCH_BLOCKED_REVOKED", actor="system", agent=grant.agent_id, request_id=request_id, artifact_id=action)
             return DispatchResult(False, "Authority revoked or expired")
 
-        # Check action scope
         if not grant.permits(action):
              self.ledger.append(event_type="DISPATCH_BLOCKED_SCOPE", actor="system", agent=grant.agent_id, request_id=request_id, artifact_id=action)
              return DispatchResult(False, "Action out of scope for grant")
@@ -35,14 +35,17 @@ class ExecutionDispatcher:
         self.ledger.append(event_type="DISPATCH_INTENT", actor=grant.principal_id, agent=grant.agent_id, request_id=request_id, artifact_id=action)
 
         try:
-            # Simulate the actual external effect taking time
+            # 1. Simulate network/setup latency BEFORE the effect commits
             time.sleep(0.05) 
             
-            # R01/R03-A: Atomic Re-check (The TOCTOU closure)
+            # 2. R01/R03-A: Atomic Re-check (The TOCTOU closure)
             if not grant.is_valid():
                 self.ledger.append(event_type="DISPATCH_ABORTED_LATE_REVOCATION", actor="system", agent=grant.agent_id, request_id=request_id, artifact_id=action)
                 return DispatchResult(False, "Authority revoked during dispatch window")
 
+            # 3. Execute the actual external effect
+            EXTERNAL_DB.commit_effect(request_id, action)
+            
             self.ledger.append(event_type="DISPATCH_SUCCESS", actor=grant.principal_id, agent=grant.agent_id, request_id=request_id, artifact_id=action)
             self._processed[request_id] = True
             return DispatchResult(True, "Execution successful")
