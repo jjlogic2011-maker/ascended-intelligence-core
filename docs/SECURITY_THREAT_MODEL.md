@@ -27,7 +27,7 @@ Attackers compromise dependencies (e.g., the `nullifAI` Pickle bypass or LiteLLM
 | :--- | :--- |
 | **ASI01: Agent Goal Hijack** | SHAPE Intent Binding: The human approves a specific, bounded JSON payload, not a generalized instruction. |
 | **ASI02: Tool Misuse** | Ephemeral JWT (SALUCA-035): The human authorization token is cryptographically bound to the specific tool and target, preventing lateral movement. |
-| **ASI03: Identity & Privilege Abuse** | Process-local locks + SQLite atomic claims ensure an agent cannot spoof or replay an approval token. |
+| **ASI03: Identity & Privilege Abuse** | Target Design: Process-local locks + SQLite atomic claims (`claim_status`) to ensure an agent cannot spoof or replay an approval token. Current State: API paths still rely on process-local RLocks; wiring to atomic SQLite claims is the immediate next priority. |
 | **ASI06: Memory/Context Poisoning** | Guidance Provenance (see 2A). The Living Ledger maintains a known-good baseline of context. |
 | **ASI07: Insecure Inter-Agent Comm.** | Agents cannot authorize each other. All consequential actions must route through the human-gated SHAPE API. |
 
