@@ -75,54 +75,40 @@ def execute():
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json(silent=True)
-
     if not data or not isinstance(data, dict):
         return jsonify({"error": "Invalid or missing JSON body"}), 200
 
     task_type = data.get("type", "report")
-    action = {"report": "report", "security": "security"}.get(
-        task_type, "execute"
-    )
+    action = {"report": "report", "security": "security"}.get(task_type, "execute")
 
-    request_id = str(uuid.uuid4())
-    gov_request = GovernanceRequest(
-        request_id=request_id,
-        agent_id="api-agent",
-        action=action,
-        artifact_id=f"api-execute-{task_type}",
-        artifact_content=json.dumps(data, sort_keys=True).encode("utf-8"),
-        creator="api-caller",
-        version="0.0.0",
-        provenance={"source": "api/execute", "task_type": task_type},
-    )
-
-    auth = _authorization_for_api(request_id)
-    gov_result = GOVERNANCE.process(gov_request, authorization=auth)
-
-    if not gov_result.executed:
-        return jsonify(
-            {
-                "error": "governance denied",
-                "reason": gov_result.reason,
-                "decision": gov_result.decision,
-            }
-        ), 200
-
-    orch_result = orch.run(data)
-    response = dict(orch_result) if isinstance(orch_result, dict) else {
-        "result": orch_result
+    payload = {
+        "action": action,
+        "resource": f"execute-{task_type}",
+        "arguments": data,
+        "agent_id": "api-agent",
+        "requester_id": "api-agent",
     }
 
-    response["governance"] = {
-        "decision": gov_result.decision,
-        "agent_id": gov_request.agent_id,
-        "request_id": request_id,
-        "receipt_event_id": gov_result.receipt_event_id,
-        "fingerprint": gov_result.fingerprint,
-    }
+    body, status = _process_action_payload(payload)
 
-    return jsonify(response)
+    if status == 200 and body.get("executed"):
+        # Run the legacy orchestrator
+        orch_result = orch.run(data)
+        
+        # Preserve the exact legacy schema the tests expect
+        response = orch_result if isinstance(orch_result, dict) else {"result": orch_result}
+        
+        # Inject the new governance telemetry
+        response["governance"] = {
+            "decision": body.get("decision"),
+            "agent_id": "api-agent",
+            "request_id": body.get("request_id"),
+            "receipt_event_id": body.get("receipt_event_id"),
+            "fingerprint": body.get("fingerprint")
+        }
+        return jsonify(response), 200
 
+    return jsonify(body), status
 
 # Additive JSON action API. Pending state is process-local; actions are simulated.
 PENDING_LOCK = threading.RLock()
