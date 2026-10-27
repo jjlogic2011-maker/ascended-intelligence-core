@@ -110,7 +110,7 @@ def execute():
 
     return jsonify(body), status
 
-# Additive JSON action API. Pending state is process-local; actions are simulated.
+# Approval transitions use PendingStore.claim_status. Insert still uses this lock.
 PENDING_LOCK = threading.RLock()
 
 
@@ -346,52 +346,38 @@ def approvals():
     return jsonify(_pending_store().list_pending())
 
 
-def _claim_pending(pending_id):
-    """Active pending record, or None. Caller must hold PENDING_LOCK."""
-    record = _pending_store().get(pending_id)
-    if record is None or record["status"] != "pending_approval":
-        return None
-    return record
-
-
 def _close_malformed_approval(pending_id):
-    """Fail an active request under PENDING_LOCK, then write one DENIED receipt."""
-    store = _pending_store()
-    with PENDING_LOCK:
-        record = _claim_pending(pending_id)
-        if record is None:
-            return
-        store.update_status(pending_id, "failed")
-        _action_audit(record, "DENIED")
+    """Atomically close an active request, then write one DENIED receipt."""
+    record = _pending_store().claim_status(pending_id, "pending_approval", "failed")
+    if record is None:
+        return
+    _action_audit(record, "DENIED")
 
 
 def _do_approve(pending_id, approval_id):
     """Shared approve logic. Returns (body_dict, http_status)."""
     store = _pending_store()
-    with PENDING_LOCK:
-        record = _claim_pending(pending_id)
-        if record is None:
-            return {"reason": "No active pending request"}, 403
-        store.update_status(pending_id, "processing")
+    record = store.claim_status(pending_id, "pending_approval", "processing")
+    if record is None:
+        return {"reason": "No active pending request"}, 403
     try:
         result = _run_action(record, approval_id)
     except Exception:
-        store.update_status(pending_id, "failed")
+        store.claim_status(pending_id, "processing", "failed")
         _action_audit(record, "DENIED")
         return {"reason": "Approval processing failed; request closed"}, 403
-    store.update_status(pending_id, "executed" if result.executed else "failed")
+    terminal = "executed" if result.executed else "failed"
+    if store.claim_status(pending_id, "processing", terminal) is None:
+        return {"reason": "Approval processing failed; request closed"}, 403
     return asdict(result), 200 if result.executed else 403
 
 
 def _do_deny(pending_id):
     """Shared deny logic. Returns (body_dict, http_status)."""
-    store = _pending_store()
-    with PENDING_LOCK:
-        record = _claim_pending(pending_id)
-        if record is None:
-            return {"reason": "No active pending request"}, 403
-        receipt = _action_audit(record, "DENIED")
-        store.update_status(pending_id, "denied")
+    record = _pending_store().claim_status(pending_id, "pending_approval", "denied")
+    if record is None:
+        return {"reason": "No active pending request"}, 403
+    receipt = _action_audit(record, "DENIED")
     return {
         "status": "denied",
         "pending_id": pending_id,
