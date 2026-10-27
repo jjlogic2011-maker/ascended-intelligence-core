@@ -63,6 +63,8 @@ class AuthorityGrant:
             "read": frozenset({"read"}),
             "write": frozenset({"write"}),
             "execute": frozenset({"execute"}),
+            "deploy": frozenset({"execute"}),
+            "production-deploy": frozenset({"execute"}),
             "external-tool": frozenset({"external"}),
         }
         return mapping.get(action, frozenset())
