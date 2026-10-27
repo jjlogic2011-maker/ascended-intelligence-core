@@ -111,6 +111,37 @@ def test_deny_writes_receipt_and_blocks_approval(setup):
                        json={"approval_id": approval_id}).status_code == 403
 
 
+def test_approval_paths_use_atomic_claim_not_unconditional_write(setup, monkeypatch):
+    client, api, service, _ = setup
+    store = api._pending_store()
+    writes = []
+    original = store.update_status
+
+    def record_write(pending_id, new_status):
+        writes.append((pending_id, new_status))
+        return original(pending_id, new_status)
+
+    monkeypatch.setattr(store, "update_status", record_write)
+    pending_id = submit(client).json["pending_id"]
+    approval_id = issue(service, store.get(pending_id))
+    approved = client.post(f"/approve/{pending_id}", headers=APPROVER,
+                           json={"approval_id": approval_id})
+    assert approved.status_code == 200
+    assert store.get(pending_id)["status"] == "executed"
+
+    denied_id = submit(client).json["pending_id"]
+    denied = client.post(f"/deny/{denied_id}", headers=APPROVER)
+    assert denied.status_code == 200
+    assert store.get(denied_id)["status"] == "denied"
+
+    malformed_id = submit(client).json["pending_id"]
+    malformed = client.post(f"/approve/{malformed_id}", headers=APPROVER,
+                            data="not-json", content_type="application/json")
+    assert malformed.status_code == 403
+    assert store.get(malformed_id)["status"] == "failed"
+    assert writes == []
+
+
 @pytest.mark.parametrize("failure", ["expired", "revoked", "arguments"])
 def test_invalidated_scope_or_approval(setup, failure):
     client, api, service, clock = setup
