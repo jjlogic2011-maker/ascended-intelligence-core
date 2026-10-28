@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://preception.ai/schema/event.schema.json",
+  "title": "PRECEPT Witness Event",
+  "type": "object",
+  "required": ["event_id", "trace_id", "event_type", "timestamp", "actor", "input_hash"],
+  "properties": {
+    "event_id": {"type": "string"},
+    "trace_id": {"type": "string"},
+    "parent_event_id": {"type": ["string", "null"]},
+    "event_type": {"type": "string"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "actor": {"type": "string"},
+    "tool": {"type": ["string", "null"]},
+    "connector": {"type": ["string", "null"]},
+    "authority_request_id": {"type": ["string", "null"]},
+    "input_hash": {"type": "string"},
+    "output_hash": {"type": ["string", "null"]},
+    "claim_ids": {"type": "array", "items": {"type": "string"}},
+    "attributes": {"type": "object"}
+  },
+  "additionalProperties": false
+}

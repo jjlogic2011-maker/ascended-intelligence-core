@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://preception.ai/schemas/ray_cycle.schema.json",
+  "title": "PRECEPTion Seven-Ray Cycle",
+  "type": "object",
+  "required": ["cycle_id", "baseline_quality", "current_quality", "outputs", "reliability"],
+  "properties": {
+    "cycle_id": {"type": "string", "minLength": 1},
+    "baseline_quality": {"type": "number", "minimum": 0, "maximum": 1},
+    "current_quality": {"type": "number", "minimum": 0, "maximum": 1},
+    "outputs": {
+      "type": "array",
+      "minItems": 22,
+      "maxItems": 22,
+      "items": {
+        "type": "object",
+        "required": ["output_id", "output_class", "rays"],
+        "properties": {
+          "output_id": {"type": "string"},
+          "output_class": {"type": "string"},
+          "rays": {
+            "type": "object",
+            "required": ["light", "truth", "love", "wisdom", "justice", "creation", "witness"],
+            "additionalProperties": false,
+            "properties": {
+              "light": {"$ref": "#/$defs/cell"},
+              "truth": {"$ref": "#/$defs/cell"},
+              "love": {"$ref": "#/$defs/cell"},
+              "wisdom": {"$ref": "#/$defs/cell"},
+              "justice": {"$ref": "#/$defs/cell"},
+              "creation": {"$ref": "#/$defs/cell"},
+              "witness": {"$ref": "#/$defs/cell"}
+            }
+          }
+        }
+      }
+    },
+    "reliability": {
+      "type": "object",
+      "required": ["test_pass_rate", "reproducibility", "provenance_completeness", "authorization_coverage", "rollback_success", "drift_stability", "correction_success"],
+      "additionalProperties": false,
+      "properties": {
+        "test_pass_rate": {"$ref": "#/$defs/unit"},
+        "reproducibility": {"$ref": "#/$defs/unit"},
+        "provenance_completeness": {"$ref": "#/$defs/unit"},
+        "authorization_coverage": {"$ref": "#/$defs/unit"},
+        "rollback_success": {"$ref": "#/$defs/unit"},
+        "drift_stability": {"$ref": "#/$defs/unit"},
+        "correction_success": {"$ref": "#/$defs/unit"}
+      }
+    }
+  },
+  "$defs": {
+    "unit": {"type": "number", "minimum": 0, "maximum": 1},
+    "cell": {
+      "type": "object",
+      "required": ["rubric_score", "confidence", "evidence_coverage", "gate_factor", "substrate_reproducibility"],
+      "additionalProperties": false,
+      "properties": {
+        "rubric_score": {"$ref": "#/$defs/unit"},
+        "confidence": {"$ref": "#/$defs/unit"},
+        "evidence_coverage": {"$ref": "#/$defs/unit"},
+        "gate_factor": {"enum": [0, 0.5, 1]},
+        "substrate_reproducibility": {"$ref": "#/$defs/unit"},
+        "note": {"type": "string"}
+      }
+    }
+  }
+}

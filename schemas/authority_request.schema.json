@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://preception.ai/schema/authority-request.schema.json",
+  "title": "PRECEPT Authority Request",
+  "type": "object",
+  "required": ["request_id", "effect", "risk_tier", "status", "requested_at"],
+  "properties": {
+    "request_id": {"type": "string"},
+    "effect": {"type": "string"},
+    "target": {"type": "string"},
+    "scope": {"type": "object"},
+    "risk_tier": {"enum": ["low", "medium", "high", "critical"]},
+    "status": {"enum": ["PENDING", "ALLOW", "DENY", "MODIFY", "DEFER", "ESCALATE"]},
+    "requested_by": {"type": "string"},
+    "approved_by": {"type": ["string", "null"]},
+    "rollback_plan": {"type": ["string", "null"]},
+    "requested_at": {"type": "string", "format": "date-time"},
+    "decided_at": {"type": ["string", "null"], "format": "date-time"}
+  },
+  "additionalProperties": false
+}

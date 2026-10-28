@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Decision Input",
+  "type": "object",
+  "required": [
+    "sessionId",
+    "decision",
+    "goal",
+    "timeline",
+    "riskLevel",
+    "stakeholders",
+    "reversibility"
+  ],
+  "properties": {
+    "sessionId": {
+      "type": "string"
+    },
+    "decision": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "timeline": {
+      "type": "string"
+    },
+    "riskLevel": {
+      "enum": [
+        "low",
+        "moderate",
+        "high",
+        "critical"
+      ]
+    },
+    "stakeholders": {
+      "type": "string"
+    },
+    "reversibility": {
+      "enum": [
+        "easy",
+        "moderate",
+        "hard",
+        "irreversible"
+      ]
+    }
+  }
+}

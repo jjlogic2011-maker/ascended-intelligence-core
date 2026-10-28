@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CognitiveMaturityEvent",
+  "type": "object",
+  "required": [
+    "event_id",
+    "timestamp",
+    "command",
+    "status",
+    "rli",
+    "ami",
+    "human_gate_required"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "command": {
+      "type": "string"
+    },
+    "mission": {
+      "type": "string"
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rli": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "ami": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "contributors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "repair_queue": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "human_gate_required": {
+      "type": "boolean"
+    },
+    "status": {
+      "enum": [
+        "drafted",
+        "completed",
+        "completed_with_gaps",
+        "pending_human_gate",
+        "blocked",
+        "repaired",
+        "archived"
+      ]
+    }
+  }
+}

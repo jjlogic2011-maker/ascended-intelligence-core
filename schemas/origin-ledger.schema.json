@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ascended-intelligence.example/schemas/origin-ledger.schema.json",
+  "title": "Ascended Intelligence Origin Ledger Record",
+  "type": "object",
+  "required": [
+    "artifact_id",
+    "title",
+    "creator",
+    "created_at",
+    "captured_at",
+    "artifact_type",
+    "license_state",
+    "attribution_text",
+    "claim_boundaries"
+  ],
+  "properties": {
+    "artifact_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "creator": {
+      "type": "string"
+    },
+    "contributors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source_location": {
+      "type": "string"
+    },
+    "artifact_type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "image",
+        "video",
+        "audio",
+        "code",
+        "prompt",
+        "schema",
+        "workflow",
+        "policy",
+        "repository"
+      ]
+    },
+    "version": {
+      "type": "string"
+    },
+    "parent_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hash_algorithm": {
+      "type": "string"
+    },
+    "hash_value": {
+      "type": "string"
+    },
+    "license_state": {
+      "type": "string",
+      "enum": [
+        "OPEN_SOURCE",
+        "OPEN_DOCS",
+        "SOURCE_AVAILABLE",
+        "RESTRICTED_DEMO",
+        "COMMERCIAL_LICENSE_REQUIRED",
+        "ENTERPRISE_LICENSE_REQUIRED",
+        "AI_TRAINING_LICENSE_REQUIRED",
+        "PRIVATE_TRADE_SECRET",
+        "UNSURE_QUARANTINE"
+      ]
+    },
+    "attribution_text": {
+      "type": "string"
+    },
+    "modification_rule": {
+      "type": "string"
+    },
+    "commercial_use_state": {
+      "type": "string"
+    },
+    "ai_training_state": {
+      "type": "string"
+    },
+    "claim_boundaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim",
+          "classification",
+          "supporting_evidence"
+        ],
+        "properties": {
+          "claim": {
+            "type": "string"
+          },
+          "classification": {
+            "type": "string",
+            "enum": [
+              "observation",
+              "inference",
+              "concern",
+              "similarity",
+              "exposure_evidence",
+              "verified_contribution",
+              "requested_remedy"
+            ]
+          },
+          "supporting_evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "approval_gate": {
+      "type": "object",
+      "properties": {
+        "truth_gate": {
+          "type": "string"
+        },
+        "proof_gate": {
+          "type": "string"
+        },
+        "privacy_gate": {
+          "type": "string"
+        },
+        "tone_gate": {
+          "type": "string"
+        },
+        "commercial_boundary_gate": {
+          "type": "string"
+        },
+        "ai_training_boundary_gate": {
+          "type": "string"
+        },
+        "human_approval": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

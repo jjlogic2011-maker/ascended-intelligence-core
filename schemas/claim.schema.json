@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://preception.ai/schema/claim.schema.json",
+  "title": "PRECEPT Claim",
+  "type": "object",
+  "required": ["claim_id", "claim_type", "value", "source", "created_at"],
+  "properties": {
+    "claim_id": {"type": "string", "minLength": 1},
+    "claim_type": {
+      "enum": ["Empirical", "Textual", "Premise", "Prophetic", "Symbolic", "Inference"]
+    },
+    "value": {},
+    "source": {"type": "string"},
+    "premise_mode": {"type": ["string", "null"]},
+    "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "evidence_ids": {"type": "array", "items": {"type": "string"}},
+    "created_at": {"type": "string", "format": "date-time"},
+    "content_hash": {"type": "string"}
+  },
+  "additionalProperties": false
+}

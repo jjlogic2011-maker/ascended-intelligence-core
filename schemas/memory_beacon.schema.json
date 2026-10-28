@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MemoryBeacon",
+  "type": "object",
+  "required": [
+    "beacon_id",
+    "date",
+    "mission",
+    "outcome",
+    "confidence"
+  ],
+  "properties": {
+    "beacon_id": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mission": {
+      "type": "string"
+    },
+    "emotional_tone": {
+      "type": "string"
+    },
+    "difficulty_burden": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "lesson_learned": {
+      "type": "string"
+    },
+    "future_recall_cues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "confidence": {
+      "enum": [
+        "ledgered",
+        "reconstructed",
+        "claimed",
+        "unverified",
+        "disputed"
+      ]
+    },
+    "cross_ledger_link": {
+      "type": "string"
+    }
+  }
+}

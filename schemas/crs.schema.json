@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CRS Intake",
+  "type": "object",
+  "required": [
+    "sessionId",
+    "seeking",
+    "urgency",
+    "sleep",
+    "delayImpact",
+    "uncertainAssumption",
+    "criticView"
+  ],
+  "properties": {
+    "sessionId": {
+      "type": "string"
+    },
+    "seeking": {
+      "enum": [
+        "relief",
+        "clarity",
+        "validation",
+        "truth",
+        "action"
+      ]
+    },
+    "urgency": {
+      "enum": [
+        "not_urgent",
+        "moderate",
+        "high",
+        "critical"
+      ]
+    },
+    "sleep": {
+      "enum": [
+        "0_3",
+        "4_5",
+        "6_7",
+        "8_plus"
+      ]
+    },
+    "delayImpact": {
+      "type": "string"
+    },
+    "uncertainAssumption": {
+      "type": "string"
+    },
+    "criticView": {
+      "type": "string"
+    }
+  }
+}

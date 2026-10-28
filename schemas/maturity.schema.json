@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Maturity Registry Entry",
+  "type": "object",
+  "required": [
+    "sessionId",
+    "version",
+    "readinessState",
+    "recommendation",
+    "feedback",
+    "maturityDelta"
+  ],
+  "properties": {
+    "sessionId": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "readinessState": {
+      "enum": [
+        "stable",
+        "degrading",
+        "distorted"
+      ]
+    },
+    "recommendation": {
+      "enum": [
+        "proceed",
+        "revise",
+        "delay",
+        "halt",
+        "escalate"
+      ]
+    },
+    "feedback": {
+      "enum": [
+        "helpful",
+        "partially_helpful",
+        "not_helpful"
+      ]
+    },
+    "maturityDelta": {
+      "type": "string"
+    }
+  }
+}
