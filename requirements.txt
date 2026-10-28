@@ -1,2 +1,3 @@
 flask
 gunicorn
+jsonschema[format]>=4.23,<5

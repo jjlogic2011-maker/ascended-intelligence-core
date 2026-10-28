@@ -1,6 +1,7 @@
-"""Strict validation for ClaimRecord."""
+"""Strict, non-executing ClaimRecord ingestion using the checked-in contract."""
 from __future__ import annotations
 from typing import Any, Mapping, NotRequired, TypedDict, cast
+from security.schema_contract import validate_record
 
 class ClaimRecord(TypedDict):
     claim_id: str
@@ -30,11 +31,12 @@ def parse_claim_record(data: Mapping[str, Any]) -> ClaimRecord:
     for field in _STRING_FIELDS & keys:
         if not isinstance(data[field], str):
             raise ValueError(f"{field} must be a string")
-    if data["status"] not in _STATUS_ENUM:
+    status=data['status']
+    if not isinstance(status, str) or status not in _STATUS_ENUM:
         raise ValueError(f"status must be one of {sorted(_STATUS_ENUM)}")
-    conf = data["confidence"]
+    conf=data['confidence']
     if isinstance(conf, bool) or not isinstance(conf, (int, float)) or not (0.0 <= conf <= 1.0):
         raise ValueError("confidence must be a number between 0.0 and 1.0")
     if "evidence" in keys and (not isinstance(data["evidence"], list) or any(not isinstance(item, dict) for item in data["evidence"])):
         raise ValueError("evidence must be an array of objects")
-    return cast(ClaimRecord, dict(data))
+    return cast(ClaimRecord, validate_record("claim_record.schema.json", data))

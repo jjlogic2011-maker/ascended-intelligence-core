@@ -1,7 +1,8 @@
-"""Strict validation for PRECEPT Witness Events."""
+"""Strict PRECEPT WitnessEvent metadata validation; hashes are not verified here."""
 from __future__ import annotations
 import re
 from typing import Any, Mapping, NotRequired, TypedDict, cast
+from security.schema_contract import validate_record
 
 class PreceptWitnessEvent(TypedDict):
     event_id: str
@@ -31,7 +32,6 @@ def _check_datetime(value: object, name: str) -> None:
 def parse_precept_witness_event(data: Mapping[str, Any]) -> PreceptWitnessEvent:
     if not isinstance(data, Mapping):
         raise ValueError("Witness event must be a JSON object")
-    
     keys = set(data)
     if any(not isinstance(key, str) for key in keys):
         raise ValueError("Witness event keys must be strings")
@@ -39,23 +39,16 @@ def parse_precept_witness_event(data: Mapping[str, Any]) -> PreceptWitnessEvent:
         raise ValueError(f"unknown witness event fields: {sorted(keys - _ALLOWED)}")
     if _REQUIRED - keys:
         raise ValueError(f"missing required fields: {sorted(_REQUIRED - keys)}")
-        
     for field in _STRING_FIELDS & keys:
         if not isinstance(data[field], str):
             raise ValueError(f"{field} must be a string")
-            
     for field in _NULLABLE_STRING_FIELDS & keys:
         if data[field] is not None and not isinstance(data[field], str):
             raise ValueError(f"{field} must be a string or null")
-            
     if "claim_ids" in keys:
         if not isinstance(data["claim_ids"], list) or any(not isinstance(item, str) for item in data["claim_ids"]):
             raise ValueError("claim_ids must be an array of strings")
-            
-    if "attributes" in keys:
-        if not isinstance(data["attributes"], dict):
-            raise ValueError("attributes must be an object")
-            
+    if "attributes" in keys and not isinstance(data["attributes"], dict):
+        raise ValueError("attributes must be an object")
     _check_datetime(data["timestamp"], "timestamp")
-    
-    return cast(PreceptWitnessEvent, dict(data))
+    return cast(PreceptWitnessEvent, validate_record("event.schema.json", data))
