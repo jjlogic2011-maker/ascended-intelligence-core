@@ -5,24 +5,21 @@ from typing import Any, Mapping, NotRequired, TypedDict, cast
 
 class MemoryBeacon(TypedDict):
     beacon_id: str
-    timestamp: str
-    emotional_tone: str
-    difficulty_burden: str
+    date: str
+    mission: str
     outcome: str
-    lesson_learned: str
     confidence: str
+    # Optional fields that may exist based on the full schema
     future_recall_cues: NotRequired[list[str]]
     cross_ledger_link: NotRequired[str]
 
 _REQUIRED = frozenset({
-    "beacon_id", "timestamp", "emotional_tone", 
-    "difficulty_burden", "outcome", "lesson_learned", "confidence"
+    "beacon_id", "date", "mission", "outcome", "confidence"
 })
 _ALLOWED = _REQUIRED | frozenset({"future_recall_cues", "cross_ledger_link"})
 
 _STRING_FIELDS = frozenset({
-    "beacon_id", "timestamp", "emotional_tone", 
-    "difficulty_burden", "outcome", "lesson_learned", "cross_ledger_link"
+    "beacon_id", "date", "mission", "outcome", "cross_ledger_link"
 })
 
 _CONFIDENCE_ENUM = frozenset({
@@ -33,11 +30,11 @@ _CONFIDENCE_ENUM = frozenset({
     "disputed"
 })
 
-_RFC3339 = re.compile(r"^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[Zz]|[+-]\d{2}:\d{2})$")
+_DATE_REGEX = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
-def _check_datetime(value: object, name: str) -> None:
-    if not isinstance(value, str) or not _RFC3339.fullmatch(value):
-        raise ValueError(f"{name} must be an RFC 3339 date-time string")
+def _check_date(value: object, name: str) -> None:
+    if not isinstance(value, str) or not _DATE_REGEX.fullmatch(value):
+        raise ValueError(f"{name} must be a YYYY-MM-DD date string")
 
 def parse_memory_beacon(data: Mapping[str, Any]) -> MemoryBeacon:
     if not isinstance(data, Mapping):
@@ -55,7 +52,7 @@ def parse_memory_beacon(data: Mapping[str, Any]) -> MemoryBeacon:
         if not isinstance(data[field], str):
             raise ValueError(f"{field} must be a string")
             
-    _check_datetime(data["timestamp"], "timestamp")
+    _check_date(data["date"], "date")
     
     if data["confidence"] not in _CONFIDENCE_ENUM:
         raise ValueError(f"confidence must be one of {sorted(_CONFIDENCE_ENUM)}")
