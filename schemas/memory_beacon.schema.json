@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "MemoryBeacon",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "beacon_id",
     "date",
@@ -10,38 +11,20 @@
     "confidence"
   ],
   "properties": {
-    "beacon_id": {
-      "type": "string"
-    },
-    "date": {
-      "type": "string"
-    },
+    "beacon_id": { "type": "string" },
+    "date": { "type": "string" },
     "participants": {
       "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     },
-    "mission": {
-      "type": "string"
-    },
-    "emotional_tone": {
-      "type": "string"
-    },
-    "difficulty_burden": {
-      "type": "string"
-    },
-    "outcome": {
-      "type": "string"
-    },
-    "lesson_learned": {
-      "type": "string"
-    },
+    "mission": { "type": "string" },
+    "emotional_tone": { "type": "string" },
+    "difficulty_burden": { "type": "string" },
+    "outcome": { "type": "string" },
+    "lesson_learned": { "type": "string" },
     "future_recall_cues": {
       "type": "array",
-      "items": {
-        "type": "string"
-      }
+      "items": { "type": "string" }
     },
     "confidence": {
       "enum": [
@@ -52,8 +35,6 @@
         "disputed"
       ]
     },
-    "cross_ledger_link": {
-      "type": "string"
-    }
+    "cross_ledger_link": { "type": "string" }
   }
 }

@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ClaimRecord",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "claim_id",
     "claim_text",
@@ -9,20 +10,12 @@
     "confidence"
   ],
   "properties": {
-    "claim_id": {
-      "type": "string"
-    },
-    "claim_text": {
-      "type": "string"
-    },
-    "source": {
-      "type": "string"
-    },
+    "claim_id": { "type": "string" },
+    "claim_text": { "type": "string" },
+    "source": { "type": "string" },
     "evidence": {
       "type": "array",
-      "items": {
-        "type": "object"
-      }
+      "items": { "type": "object" }
     },
     "status": {
       "enum": [
@@ -42,11 +35,7 @@
       "minimum": 0,
       "maximum": 1
     },
-    "review_date": {
-      "type": "string"
-    },
-    "public_safe_wording": {
-      "type": "string"
-    }
+    "review_date": { "type": "string" },
+    "public_safe_wording": { "type": "string" }
   }
 }
