@@ -14,7 +14,8 @@
       "type": "string"
     },
     "date": {
-      "type": "string"
+      "type": "string",
+      "format": "date"
     },
     "participants": {
       "type": "array",
@@ -55,5 +56,6 @@
     "cross_ledger_link": {
       "type": "string"
     }
-  }
+  },
+  "additionalProperties": false
 }

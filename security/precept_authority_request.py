@@ -1,8 +1,11 @@
-"""Strict, metadata-only ingestion of the photographed PRECEPT Authority Request."""
+"""Strict, non-executing PRECEPT AuthorityRequest ingestion.
+
+A request status of ALLOW does not represent a SHAPE authorization or grant.
+"""
 from __future__ import annotations
 import re
-from datetime import datetime
 from typing import Any, Mapping, NotRequired, TypedDict, cast
+from security.schema_contract import validate_record
 
 class PreceptAuthorityRequest(TypedDict):
     request_id: str
@@ -28,12 +31,7 @@ _RFC3339 = re.compile(r"^\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[Zz]
 def _check_datetime(value: object, name: str) -> None:
     if not isinstance(value, str) or not _RFC3339.fullmatch(value):
         raise ValueError(f"{name} must be an RFC 3339 date-time string")
-    try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00").replace("z", "+00:00"))
-    except ValueError as exc:
-        raise ValueError(f"{name} must be a valid date-time") from exc
-    if parsed.tzinfo is None or parsed.utcoffset() is None:
-        raise ValueError(f"{name} must include a time-zone offset")
+    # Calendar validity and timezone semantics are checked by the schema oracle.
 
 def parse_precept_authority_request(data: Mapping[str, Any]) -> PreceptAuthorityRequest:
     if not isinstance(data, Mapping):
@@ -45,17 +43,19 @@ def parse_precept_authority_request(data: Mapping[str, Any]) -> PreceptAuthority
         raise ValueError(f"unknown authority request fields: {sorted(keys - _ALLOWED)}")
     if _REQUIRED - keys:
         raise ValueError(f"missing required fields: {sorted(_REQUIRED - keys)}")
-    
     for field in _STRING_FIELDS & keys:
-        if not isinstance(data[field], str): raise ValueError(f"{field} must be a string")
+        if not isinstance(data[field], str):
+            raise ValueError(f"{field} must be a string")
     for field in _NULLABLE_STRING_FIELDS & keys:
-        if data[field] is not None and not isinstance(data[field], str): raise ValueError(f"{field} must be a string or null")
-    if "scope" in keys and not isinstance(data["scope"], dict): raise ValueError("scope must be an object")
-    if not isinstance(data["risk_tier"], str) or data["risk_tier"] not in _RISK_TIERS: raise ValueError("risk_tier is outside the schema enum")
-    if not isinstance(data["status"], str) or data["status"] not in _REQUEST_STATUSES: raise ValueError("status is outside the schema enum")
-    
+        if data[field] is not None and not isinstance(data[field], str):
+            raise ValueError(f"{field} must be a string or null")
+    if "scope" in keys and not isinstance(data["scope"], dict):
+        raise ValueError("scope must be an object")
+    if not isinstance(data["risk_tier"], str) or data["risk_tier"] not in _RISK_TIERS:
+        raise ValueError("risk_tier is outside the schema enum")
+    if not isinstance(data["status"], str) or data["status"] not in _REQUEST_STATUSES:
+        raise ValueError("status is outside the schema enum")
     _check_datetime(data["requested_at"], "requested_at")
     if "decided_at" in keys and data["decided_at"] is not None:
         _check_datetime(data["decided_at"], "decided_at")
-        
-    return cast(PreceptAuthorityRequest, dict(data))
+    return cast(PreceptAuthorityRequest, validate_record("authority_request.schema.json", data))
