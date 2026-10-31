@@ -1,6 +1,6 @@
 # TRUSTOS-SCHEMA-001 — Four-Record Contract Conformance
 
-**Status:** SPECIFICATION + LOCAL STAGED TESTS ONLY; no GitHub commit, CI, or deployment evidence for this candidate.
+**Status:** Merged to `main` in pull request #32 (`473d4994926f`, 2026-10-28). GitHub Actions `baseline` completed successfully on that merge, on `7238556c3c93cd10ee3c892dbd27da165db95834`, and on the README merge `d8e14cb12313bb34dd999a409734e3e88efefcc8`. This is not production conformance and not an independent reproduction. Termux was not re-run for this package. Python 3.10 cannot import these parsers because they use `typing.NotRequired`.
 
 **Parent baseline:** `e4e28bcfaf7220b712e9fa9b9ab5fd4fc8a91fb6` (October 28, 2026).
 
@@ -37,4 +37,4 @@
 - **VERIFIED:** source schema properties and original file SHA values checked against the specified GitHub commit.
 - **SPECIFICATION:** explicit unknown-key policy and date format decision.
 - **LOCAL TEST:** parity suite executed on staged files under the model's isolated Python container.
-- **ROADMAP:** same-commit GitHub CI, Termux validation, data migration assurance, independent reproduction.
+- **ROADMAP:** Termux validation, stored-record migration, and independent reproduction. GitHub Actions `baseline` has run on the merged commits named above; that is repository CI, not an external party.
