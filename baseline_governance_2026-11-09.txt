@@ -1,0 +1,314 @@
+============================= test session starts ==============================
+platform android -- Python 3.14.8, pytest-9.1.1, pluggy-1.6.0 -- /data/data/com.termux/files/usr/bin/python
+cachedir: .pytest_cache
+rootdir: /data/data/com.termux/files/home/evidence-bank/ascended-intelligence-core
+configfile: pytest.ini
+plugins: cov-7.1.0
+collecting ... collected 34 items
+
+tests/unit/test_ledger.py::test_first_event_links_to_genesis PASSED      [  2%]
+tests/unit/test_ledger.py::test_chain_links_correctly PASSED             [  5%]
+tests/unit/test_ledger.py::test_verify_ok PASSED                         [  8%]
+tests/unit/test_ledger.py::test_verify_detects_tamper_on_disk PASSED     [ 11%]
+tests/unit/test_ledger.py::test_verify_detects_broken_link PASSED        [ 14%]
+tests/unit/test_ledger.py::test_event_contains_required_fields PASSED    [ 17%]
+tests/unit/test_ledger.py::test_correction_of_field PASSED               [ 20%]
+tests/unit/test_shape.py::test_illegal_transition_rejected PASSED        [ 23%]
+tests/unit/test_shape.py::test_happy_path_execution PASSED               [ 26%]
+tests/unit/test_shape.py::test_expired_cannot_execute PASSED             [ 29%]
+tests/unit/test_shape.py::test_revoked_cannot_execute PASSED             [ 32%]
+tests/unit/test_shape.py::test_terminal_state_is_terminal PASSED         [ 35%]
+tests/unit/test_shape.py::test_transitions_are_audited PASSED            [ 38%]
+tests/unit/test_shape.py::test_can_execute_predicate PASSED              [ 41%]
+tests/unit/test_human_gates.py::test_approved_transaction_and_replay PASSED [ 44%]
+tests/unit/test_human_gates.py::test_scope_change_rejected[resource] PASSED [ 47%]
+tests/unit/test_human_gates.py::test_scope_change_rejected[arguments] PASSED [ 50%]
+tests/unit/test_human_gates.py::test_scope_change_rejected[request_id] PASSED [ 52%]
+tests/unit/test_human_gates.py::test_scope_change_rejected[requester_id] PASSED [ 55%]
+tests/unit/test_human_gates.py::test_scope_change_rejected[action] PASSED [ 58%]
+tests/unit/test_human_gates.py::test_expiry_revocation_and_unverified_human PASSED [ 61%]
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart PASSED [ 64%]
+tests/unit/test_human_gates.py::test_nonapproved_fails_closed[REQUESTED] PASSED [ 67%]
+tests/unit/test_human_gates.py::test_nonapproved_fails_closed[PENDING_HUMAN_APPROVAL] PASSED [ 70%]
+tests/unit/test_human_gates.py::test_nonapproved_fails_closed[DENIED] PASSED [ 73%]
+tests/unit/test_human_gates.py::test_nonapproved_fails_closed[REVOKED] PASSED [ 76%]
+tests/unit/test_human_gates.py::test_history_without_service_is_not_approval PASSED [ 79%]
+tests/unit/test_human_gates.py::test_governance_approval_to_verified_receipt PASSED [ 82%]
+tests/unit/test_governance_grants.py::test_valid_grant_permits_execution PASSED [ 85%]
+tests/unit/test_governance_grants.py::test_expired_grant_blocks PASSED   [ 88%]
+tests/unit/test_governance_grants.py::test_revoked_grant_blocks PASSED   [ 91%]
+tests/unit/test_governance_grants.py::test_wrong_agent_blocks PASSED     [ 94%]
+tests/unit/test_governance_grants.py::test_insufficient_scope_blocks PASSED [ 97%]
+tests/unit/test_governance_grants.py::test_max_uses_decrements_on_success PASSED [100%]/data/data/com.termux/files/usr/lib/python3.14/ast.py:46: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff1609120>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/ast.py:46: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c23e0>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/ast.py:46: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c22f0>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/ast.py:46: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff16095d0>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/ast.py:46: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff16098a0>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/ast.py:46: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff1609b70>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/ast.py:46: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff1609e40>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/ast.py:46: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff16097b0>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/ast.py:46: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff1609030>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/ast.py:46: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff1609d50>
+  return compile(source, filename, mode, flags,
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/data/data/com.termux/files/usr/lib/python3.14/collections/__init__.py:453: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff1608c70>
+  @classmethod
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+
+
+=============================== warnings summary ===============================
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c26b0>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c2b60>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c2c50>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c2d40>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c2a70>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c2f20>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3010>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3100>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c2e30>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c33d0>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c34c0>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c35b0>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c2890>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c36a0>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3790>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3880>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c2980>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3a60>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3b50>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3c40>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3970>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3e20>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3f10>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff1608040>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c3d30>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff1608220>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff1608310>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff1608400>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff16084f0>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff16085e0>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff15c32e0>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff16087c0>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/unit/test_human_gates.py::test_concurrent_consumption_and_restart
+  /data/data/com.termux/files/usr/lib/python3.14/json/encoder.py:263: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x6ff16088b0>
+    return _iterencode(o, 0)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================ tests coverage ================================
+______________ coverage: platform android, python 3.14.8-final-0 _______________
+
+Name                                    Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------
+agents/router.py                            7      7     0%   2-11
+api/app.py                                259    259     0%   1-551
+core/orchestrator.py                        7      7     0%   1-11
+experts/__init__.py                         0      0   100%
+experts/report.py                           2      2     0%   1-2
+experts/security.py                         2      2     0%   1-2
+security/airi_dna.py                       41      6    85%   34, 90, 92, 94-96
+security/approval_cas.py                   26     26     0%   6-50
+security/approval_service.py               47      5    89%   20, 22, 26-27, 49
+security/auth.py                           20     20     0%   1-33
+security/authority.py                      61      9    85%   74, 104, 107, 110, 113-116, 119
+security/claim_record.py                   38     38     0%   2-42
+security/delegation.py                     26     26     0%   2-30
+security/dispatcher.py                     64     64     0%   2-78
+security/export.py                         19     19     0%   7-38
+security/external_adapter.py               42     42     0%   10-72
+security/governance.py                    107     15    86%   73, 75, 81, 83, 110-112, 120-121, 129-130, 138-139, 148, 150
+security/human_gates.py                    15      1    93%   23
+security/ledger.py                         73      2    97%   70, 139
+security/memory_access.py                  96     96     0%   10-200
+security/memory_beacon.py                  48     48     0%   2-53
+security/pending_store.py                  59     59     0%   9-136
+security/precept_authority_request.py      52     52     0%   5-61
+security/precept_witness_event.py          49     49     0%   2-54
+security/reliability.py                    22     22     0%   2-31
+security/schema_contract.py                55     55     0%   7-80
+security/shape.py                          56      1    98%   75
+security/tabs.py                          137    137     0%   8-268
+security/telemetry.py                      17     17     0%   7-41
+security/ui_auth.py                        18     18     0%   10-37
+---------------------------------------------------------------------
+TOTAL                                    1465   1104    25%
+======================= 34 passed, 33 warnings in 1.39s ========================
