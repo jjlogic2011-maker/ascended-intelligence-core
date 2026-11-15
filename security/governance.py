@@ -172,7 +172,7 @@ class GovernanceEngine:
             artifact_id=request.artifact_id,
             creator=request.creator,
             version=request.version,
-            timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            timestamp=request.provenance.get("declared_timestamp", "1970-01-01T00:00:00Z"),
             provenance=request.provenance,
             lineage=[],
             policy_state=State.EXECUTED.value,
