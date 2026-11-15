@@ -68,19 +68,20 @@ def test_malformed_body_does_not_execute(client):
     assert "error" in body
     assert "governance" not in body
 
-@pytest.mark.xfail(
-    strict=False,
-    reason="Fingerprint includes a 1-second-resolution timestamp. "
-           "Two identical requests straddling a second boundary produce "
-           "different fingerprints. Design question, not a bug.",
-)
+from unittest.mock import patch
+
 def test_governance_fingerprint_is_stable_for_same_payload(client):
     payload = {"type": "report", "payload": "same"}
-    r1 = client.post("/execute", json=payload, headers=HEADERS).get_json()
-    r2 = client.post("/execute", json=payload, headers=HEADERS).get_json()
-    # Fingerprints differ because artifact_id includes request-scoped values?
-    # Actually artifact_id is type-based, so it should match for identical
-    # payloads when serialized the same way.
+    
+    # Request 1: simulated execution time T=1
+    with patch("time.strftime", return_value="2026-01-01T00:00:00Z"):
+        r1 = client.post("/execute", json=payload, headers=HEADERS).get_json()
+        
+    # Request 2: simulated execution time T=2
+    with patch("time.strftime", return_value="2026-01-01T00:00:01Z"):
+        r2 = client.post("/execute", json=payload, headers=HEADERS).get_json()
+        
+    # Even though execution times differ, the artifact fingerprint MUST match
     assert r1["governance"]["fingerprint"] == r2["governance"]["fingerprint"]
 
 
